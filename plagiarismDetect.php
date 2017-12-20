@@ -23,6 +23,8 @@ class PlagiarismDetect extends external_api
     private $stuAssignmentWork;
     // 抄袭阈值
     public $plagThreshold = 0.7;
+    //所有文章列表
+    public $gArticles;
 
     private function connectDb()
     {
@@ -120,14 +122,127 @@ class PlagiarismDetect extends external_api
         return $lcs;
     }
 
+    //parse content to sentences
+    public function parseArticle($article,$content)
+    {
+
+        $article->sentenceList = array();
+        $sentenceId = 0;
+        $start = 0;
+
+        $sentence = preg_split('/(?<=[,.!?:;~，。！？：；～])/u',$content);  
+        foreach($sentence as $st) 
+        {
+            $obj = new Sentence();
+            $obj->articleId = $article->articleId;          
+            $obj->sentenceId = $sentenceId;
+            $obj->content = $st;
+            $obj->start = $start;
+            $obj->length= mb_strlen($st);
+            $article->sentenceList += array($sentenceId => $obj);
+
+            $sentenceId += 1;
+        }
+        
+        return $sentence;
+        
+    }
+    // parse student articles
+    public function parseStudentArticle(&$articleId)
+    {
+        $stuArticleList = array();
+        // initial student from Db 
+        initStudentAssignFromDb();
+
+        foreach ($this->stuAssignmentWork as $stuAssign) {
+            $article = new Article();
+            $article->articleId = $articleId;
+            $article->studentInfo = $stuAssign;
+            parseArticle($article,$stuAssign->content);
+            
+            $stuArticleList += array($articleId->$article);
+            $articleId += 1;
+        }
+    }
+           
+    //compare student homework to reference article
+    public function compareArticle($studentArticleList,$refArticleList,$strict)
+    {
+        foreach($studentArticleList as $stu)
+        {
+            foreach($stu->sentenceList as $stuSt)
+            {
+                foreach($refArticleList as $ref)
+                {
+                    foreach($ref->sentenceList as $refSt)
+                    {
+                        // if plagirism happens
+                        if(isSimilar($stuSt,$refSt,$strict)) 
+                        {
+                            $plagRef = new PlagiarismReference();
+                            $plagRef->articleId = $ref->articleId;
+                            $plagRef->sentenceId = $refSt->sentenceId;
+                            $plagiarismList += array(count($plagiarismList)=>$plagRef);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private function isSimilar($stuSt,$refSt,$strict)
+    {
+        $similarity = false;
+
+        $tmp1 = beforeCompareWork($stuSt);
+        $tmp2 = beforeCompareWork($refSt);
+        // when strict ,using lcs method
+        if($strict){
+            $lcs = $this->lcs($tmp1, $tmp2);
+            
+            if ($lcs == null || count($lcs) <=2) {
+                $lcsLen = 0;
+            } else {
+                $lcsLen = count($lcs);
+            }
+
+            $ratio = $lcsLen / (float)count($sent);
+           
+            if($ratio >= $this->minUnit)
+            {
+                $similarity = true;
+            }else{
+                $similarity = false;
+            }
+
+        }else{
+        //otherwise using common equal compare
+            if($tmp1 == $tmp2)
+            {
+                $similarity = true;
+            }
+        }
+
+        return $similarity;
+    }
+
+    private function beforeCompareWork($str)
+    {
+        return CharUtils::remove_meaningless_symbol(
+                 CharUtils::remove_spaces(
+                    CharUtils::remove_prepositionList(
+                        $str,$this->meanlessWords)));
+    }
 
     //整理参考文献里面的句子
     private function prepareRefData($refcontent)
     {
+        // 切换为整篇文章的算法，不再去除空格
         $refStr = CharUtils::remove_spaces($refcontent);
 
         $this->refSents = $this->cutSentence($refStr);
     }
+    
     // 从数据库中将学生作业抽出
     public function initStudentAssignFromDb()
     {
@@ -153,8 +268,9 @@ class PlagiarismDetect extends external_api
                 // clean the content
                 // remove html tags e.g. '<h1></h1>'
                 // remove spaces, meaningless symbol, nbsp
-                $stuAssignItem->content = CharUtils::remove_nbsp(CharUtils::remove_meaningless_symbol(
-                CharUtils::remove_spaces(CharUtils::remove_html_tags($record->content))));
+                // $stuAssignItem->content = CharUtils::remove_nbsp(CharUtils::remove_meaningless_symbol(
+                // CharUtils::remove_spaces(CharUtils::remove_html_tags($record->content))));
+                $stuAssignItem->content = CharUtils::remove_nbsp(CharUtils::remove_html_tags($record->content));
                 $stuAssignItem->grade = $record->grade;
                 array_push($this->stuAssignmentWork, $stuAssignItem);
             }

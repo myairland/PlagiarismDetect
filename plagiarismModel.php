@@ -57,4 +57,49 @@ class StuAsgnInfo{
     // 学生互评阶段成绩
     public $grade = 0.0;
 }
+//文章单元
+class Article{
+    //唯一标识符
+    public $articleId;
+    //文章名
+    public $filename;
+    //句子列表
+    public $sentenceList;
+    //学生信息
+    public $studentInfo;
+}
+//抄袭单元
+class PlagiarismReference{
+    public $articleId;
+    public $sentenceId; 
+
+}
+// 句子单元
+class Sentence{
+    public $articleId;
+    //唯一标识符
+    public $sentenceId;
+    //句子内容
+    public $content;
+    //句子在文章中的开始位置
+    public $start;
+    //句子长度
+    public $length;
+    //关联的句子列表，抄袭的句子就放在这里
+    public $plagiarismList;
+    //每个字的列表
+    public $characterList;
+}
+//字单元 暂时应该用不到
+class Character
+{
+    public $sentenceId;
+
+    public $articlePos;
+
+    public $sentencePos;
+
+    public $characterIndex;
+
+}
 ?>
