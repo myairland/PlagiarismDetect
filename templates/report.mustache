@@ -3,9 +3,9 @@
 <style>
 .grow
 {
-        background-color:blue;
+        background-color:#ff8000;
         font-size:18px;
-        box-shadow: inset 0 0 0 25px #53a7ea;
+        box-shadow: inset 0 0 0 25px #ff8000;
 }
 span{
     margin:0px;
@@ -62,7 +62,7 @@ span{
     padding:10px;
     margin:10px;
     width:92%;
-    height:20px;
+    height:40px;
     background: #fafafa; 
     background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
     background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa); 
@@ -70,7 +70,7 @@ span{
 .article{
     padding:10px;
     width:95%;
-    height:200px;
+    height:400px;
     overflow:scroll;;
 }
 .nextStu{
@@ -97,10 +97,25 @@ span{
 .author{
 
 }
+.tips {
+  background-color: #f00;
+  color: #fff;
+/*   border-radius:50%;*/
+  text-align: left;
+  position: absolute;
+  height: 20px;
+  top:-10px;
+  left:0px;
+  font-size:8px;
+  white-space: pre;
+}
 </style>
 <div class="container">
         <input type="hidden" id="curStu" value="0" />
         <input type="hidden" id="curRef" value="0" />
+                <span id="selectArea" class="selectArea">
+
+                </span>
     <div class="leftInfo">
         {{#stu}}
         <div class="stuSection" data-show="{{articleId}}">
@@ -129,7 +144,7 @@ span{
             </div>
             <div class="article">
             {{#sentenceList}}
-               <span data-plag="{{#plagiarismList}}{{articleId}}-{{sentenceId}} {{/plagiarismList}}">{{content}}</span>
+               <span data-plag="{{#plagiarismList}}{{articleId}}-{{sentenceId}}-{{similarity}} {{/plagiarismList}}">{{content}}</span>
             {{/sentenceList}}
             <br />
             <hr />

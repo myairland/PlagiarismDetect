@@ -72,6 +72,7 @@ class Article{
 class PlagiarismReference{
     public $articleId;
     public $sentenceId; 
+    public $similarity;
 
 }
 // 句子单元

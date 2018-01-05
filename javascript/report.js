@@ -2,6 +2,8 @@ var plagLength = 40;
 var continueFlag = false;
 var plagArray = [];
 var plagStLength = 0;
+var plagbackColor= '#ffff62';
+
 function init()
 {
     // var curStu = $('#curStu').val();
@@ -14,6 +16,10 @@ function init()
     initNextPage("rightInfo","Ref");
 
     colorPlagiarism("0","0");
+
+    $(document).on("mouseup",function(){
+        $("#selectArea").html("选中文字" + getSelectionTextLength());
+    });
 }
 
 function colorPlagiarism(curStu,curRef)
@@ -31,91 +37,96 @@ function colorPlagiarism(curStu,curRef)
         $(this).unbind('mouseenter').unbind('mouseleave');
     });
 
-    var stuSt = $(".leftInfo>div[data-show='" + curStu + "'] .article>span");
+    // var stuSt = $(".leftInfo>div[data-show='" + curStu + "'] .article>span");
 
-    stuSt.each(function(index,st){
-        var plag = $(this).attr("data-plag");
-        if($.trim(plag) != "" && plag.indexOf(curRef + "-") != -1)
-        {
-            continueFlag = true;
-            plagArray.push($(this));
-        }
-        if($.trim(plag) == "" ||  plag.indexOf(curRef + "-") == -1 ||index  == stuSt.length -1)
-        {
-            if(plagArray.length > 0)
-            {
-                $.each(plagArray,function(index,value){
-                    plagStLength += $(this).text().length;
-                });
-
-                if(plagStLength > plagLength){
-                    $.each(plagArray,function(i,ele){
-                        var plag = $(this).attr("data-plag");
-                        if($.trim(plag) != "")
-                        {
-                            $(this).css("background-color","yellow");  
-                            $(this).hover(function(){
-                                $(this).addClass("grow");
-                            },function(){
-                                $(this).removeClass("grow");
-                            })
-                        
-                            var plagArray = plag.split(" ");
-                            $.each(plagArray,function(index,value){
-                                var refSt = $(".rightInfo>div[data-show='" + curRef + "'] .article>span[data-plag='" + value + "'");
-                                if($.trim(value) != "" && value.substring(0,1) == curRef)
-                                {
-                                    refSt.css('background-color','yellow');
-                                    var offset = refSt.offset().top;
-                                    $(ele).hover(function(){
-                                    // $(refSt).parent().scrollTop(offset);
-                                    $(refSt).parent().scrollTop(refSt.offset().top - refSt.parent().offset().top + refSt.parent().scrollTop());
-                                        $(refSt).addClass("grow");
-                                    },function(){
-                                        $(refSt).removeClass("grow");
-                                    })
-                                }
-                            });
-                        }
-                    });
-
-                }
-
-                plagArray.splice(0,plagArray.length);
-                plagStLength = 0;
-            }
-        }
-
-    });
-    // $(".leftInfo>div[data-show='" + curStu + "'] .article>span").each(function(index,st){
+    // stuSt.each(function(index,st){
     //     var plag = $(this).attr("data-plag");
-    //     if($.trim(plag) != "")
+    //     if($.trim(plag) != "" && plag.indexOf(curRef + "-") != -1)
     //     {
-    //         $(this).css("background-color","yellow");  
-    //         $(this).hover(function(){
-    //             $(this).addClass("grow");
-    //         },function(){
-    //             $(this).removeClass("grow");
-    //         })
-          
-    //         var plagArray = plag.split(" ");
-    //         $.each(plagArray,function(index,value){
-    //             var refSt = $(".rightInfo>div[data-show='" + curRef + "'] .article>span[data-plag='" + value + "'");
-    //             if($.trim(value) != "" && value.substring(0,1) == curRef)
-    //             {
-    //                 refSt.css('background-color','yellow');
-    //                 var offset = refSt.offset().top;
-    //                 $(st).hover(function(){
-    //                    // $(refSt).parent().scrollTop(offset);
-    //                    $(refSt).parent().scrollTop(refSt.offset().top - refSt.parent().offset().top + refSt.parent().scrollTop());
-    //                     $(refSt).addClass("grow");
-    //                 },function(){
-    //                     $(refSt).removeClass("grow");
-    //                 })
-    //             }
-    //         });
+    //         continueFlag = true;
+    //         plagArray.push($(this));
     //     }
+    //     if($.trim(plag) == "" ||  plag.indexOf(curRef + "-") == -1 ||index  == stuSt.length -1)
+    //     {
+    //         if(plagArray.length > 0)
+    //         {
+    //             $.each(plagArray,function(index,value){
+    //                 plagStLength += $(this).text().length;
+    //             });
+
+    //             if(plagStLength > plagLength){
+    //                 $.each(plagArray,function(i,ele){
+    //                     var plag = $(this).attr("data-plag");
+    //                     if($.trim(plag) != "")
+    //                     {
+    //                         $(this).css("background-color","yellow");  
+    //                         $(this).hover(function(){
+    //                             $(this).addClass("grow");
+    //                         },function(){
+    //                             $(this).removeClass("grow");
+    //                         })
+                        
+    //                         var plagArray = plag.split(" ");
+    //                         $.each(plagArray,function(index,value){
+    //                             var refSt = $(".rightInfo>div[data-show='" + curRef + "'] .article>span[data-plag='" + value + "'");
+    //                             if($.trim(value) != "" && value.substring(0,1) == curRef)
+    //                             {
+    //                                 refSt.css('background-color','yellow');
+    //                                 var offset = refSt.offset().top;
+    //                                 $(ele).hover(function(){
+    //                                 // $(refSt).parent().scrollTop(offset);
+    //                                 $(refSt).parent().scrollTop(refSt.offset().top - refSt.parent().offset().top + refSt.parent().scrollTop());
+    //                                     $(refSt).addClass("grow");
+    //                                 },function(){
+    //                                     $(refSt).removeClass("grow");
+    //                                 })
+    //                             }
+    //                         });
+    //                     }
+    //                 });
+
+    //             }
+
+    //             plagArray.splice(0,plagArray.length);
+    //             plagStLength = 0;
+    //         }
+    //     }
+
     // });
+    $(".leftInfo>div[data-show='" + curStu + "'] .article>span").each(function(index,st){
+        var plag = $(this).attr("data-plag");
+        if($.trim(plag) != "")
+        {
+            $(this).css("background-color",plagbackColor);  
+            $(this).hover(function(){
+                $(this).addClass("grow");
+            },function(){
+                $(this).removeClass("grow");
+            })
+          
+            var plagArray = plag.split(" ");
+            $.each(plagArray,function(refStIndex,value){
+                var refStPos = value.substring(0,value.lastIndexOf("-"));
+                var refSimilarity = value.substring(value.lastIndexOf("-") + 1);
+                var refSt = $(".rightInfo>div[data-show='" + curRef + "'] .article>span[data-plag='" + refStPos + "'");
+                if($.trim(value) != "" && value.substring(0,1) == curRef)
+                {
+                    refSt.css('background-color',plagbackColor);
+                    var offset = refSt.offset().top;
+                    $(st).hover(function(){
+                       $(refSt).parent().scrollTop(refSt.offset().top - refSt.parent().offset().top + refSt.parent().scrollTop());
+                        $(refSt).addClass("grow");
+                        $(st).css("position","relative");
+                        $(st).append("<span class='tips'>相似度:" + parseFloat(round(refSimilarity,4)) * 100 + "%</span>")
+                    },function(){
+                        $(refSt).removeClass("grow");
+                        $(st).children(":last").remove();
+                        $(st).css("position","static");
+                    })
+                }
+            });
+        }
+    });
 
 }
 
@@ -226,4 +237,20 @@ function fileDownload(test)
         alert(tmp.age);
         alert(tmp.name);
       });
+}
+
+function round(num,v)
+{
+    var vv = Math.pow( 10 , v );
+    return Math.round( num * vv ) / vv;
+}
+
+function getSelectionTextLength() {
+    var text = "";
+    if (window.getSelection) {
+        text = window.getSelection().toString();
+    } else if (document.selection && document.selection.type != "Control") {
+        text = document.selection.createRange().text;
+    }
+    return text.length;
 }

@@ -171,73 +171,79 @@ class PlagiarismDetect extends external_api
     //compare student homework to reference article
     public function compareArticle($studentArticleList,$refArticleList,$strict)
     {
+
         foreach($studentArticleList as $stu)
         {
             foreach($stu->sentenceList as $stuSt)
             {
                 foreach($refArticleList as $ref)
                 {
+                    $similarity = 0; 
+                    $articleId = "";
+                    $sentenceId = "";
                     foreach($ref->sentenceList as $refSt)
                     {
-                        // if plagirism happens
-                        if($this->isSimilar($stuSt,$refSt,$strict)) 
-                        {
-                            $plagRef = new PlagiarismReference();
-                            $plagRef->articleId = $ref->articleId;
-                            $plagRef->sentenceId = $refSt->sentenceId;
-                            if(!isset($stuSt->plagiarismList)){
-                                $stuSt->plagiarismList = array();
+
+                        $tmp1 = $this->beforeCompareWork($stuSt);
+                        $tmp2 = $this->beforeCompareWork($refSt);
+
+                        if($strict){
+                            $lcs = $this->lcs($tmp1, $tmp2);
+                            
+                            if ($lcs == null || count($lcs) <=2) {
+                                $lcsLen = 0;
+                            } else {
+                                $lcsLen = count($lcs);
                             }
-                            $stuSt->plagiarismList += array(count($stuSt->plagiarismList)=>$plagRef);
+
+                            if($lcsLen <= $this->minUnit)
+                            {
+                                // 小于最小检测单位认为不是抄袭
+                                $ratio = 0;
+                            }else{
+                                $ratio = $lcsLen / (float)count($tmp1);                         
+                            }
+
+                            if ($ratio > $similarity && $ratio > $this->plagThreshold) {
+                                $similarity = $ratio;
+                                $articleId = $ref->articleId;
+                                $sentenceId = $refSt->sentenceId;
+                            }
+                            
+                        }else{
+                            //otherwise using common equal compare
+                            if($tmp1 == $tmp2)
+                            {
+                                $similarity = 1;
+                                $articleId = $ref->articleId;
+                                $sentenceId = $refSt->sentenceId;
+                            }
                         }
+
+                    }
+                    // if plagirism happens
+                    if($similarity > 0) 
+                    {
+                        $plagRef = new PlagiarismReference();
+                        $plagRef->articleId = $articleId ;
+                        $plagRef->sentenceId = $sentenceId;
+                        $plagRef->similarity = $similarity;
+                        if(!isset($stuSt->plagiarismList)){
+                            $stuSt->plagiarismList = array();
+                        }
+                        $stuSt->plagiarismList += array(count($stuSt->plagiarismList)=>$plagRef);
                     }
                 }
             }
         }
     }
     
-    private function isSimilar($stuSt,$refSt,$strict)
-    {
-        $similarity = false;
-
-        $tmp1 = $this->beforeCompareWork($stuSt);
-        $tmp2 = $this->beforeCompareWork($refSt);
-        // when strict ,using lcs method
-        if($strict){
-            $lcs = $this->lcs($tmp1, $tmp2);
-            
-            if ($lcs == null || count($lcs) <=2) {
-                $lcsLen = 0;
-            } else {
-                $lcsLen = count($lcs);
-            }
-
-            $ratio = $lcsLen / (float)count($sent);
-           
-            if($ratio >= $this->minUnit)
-            {
-                $similarity = true;
-            }else{
-                $similarity = false;
-            }
-
-        }else{
-        //otherwise using common equal compare
-            if($tmp1 == $tmp2)
-            {
-                $similarity = true;
-            }
-        }
-
-        return $similarity;
-    }
-
     private function beforeCompareWork($str)
     {
-        return CharUtils::remove_meaningless_symbol(
+        return CharUtils::mb_str_split(CharUtils::remove_meaningless_symbol(
                  CharUtils::remove_spaces(
                     CharUtils::remove_prepositionList(
-                        $str->content,$this->meanlessWords)));
+                        $str->content,$this->meanlessWords))));
     }
 
     //整理参考文献里面的句子

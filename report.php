@@ -98,7 +98,7 @@ if ($mform->is_cancelled()) {
     // parse student homework
     $studentArticleList = $plag->parseStudentArticle();
 
-     $plag->compareArticle($studentArticleList,$refArticleList,false);
+     $plag->compareArticle($studentArticleList,$refArticleList,true);
 
     $cm = get_coursemodule_from_id('url', $courseModuleid, 0, false, MUST_EXIST);
     $url = $DB->get_record('url', array('id'=>$cm->instance), '*', MUST_EXIST);
