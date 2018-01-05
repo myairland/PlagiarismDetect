@@ -9,6 +9,7 @@ require_once("$CFG->dirroot/mod/url/plagiarismDetect.php");
 require_once("$CFG->dirroot/mod/url/reportmodel.php");
 require_once("$CFG->dirroot/mod/url/plagiarismModel.php");
 include 'vendor/autoload.php';
+$courseModuleid       = optional_param('courseModuleid', 0, PARAM_INT);        // Course module ID
 $id       = optional_param('courseid', 0, PARAM_INT);        // Course module ID
 // 设置脚本执行最大时间
 ini_set("max_execution_time", "0");
@@ -95,14 +96,35 @@ if ($mform->is_cancelled()) {
     }
 
     // parse student homework
-    $studentArticleList = $plag->parseStudentArticle($titleid);
-    $refArticleList += array($titleid=>$plag->parseStudentArticle());
+    $studentArticleList = $plag->parseStudentArticle();
 
-    $plag->compareArticle($studentArticleList,$refArticleList,false);
+     $plag->compareArticle($studentArticleList,$refArticleList,false);
+
+    $cm = get_coursemodule_from_id('url', $courseModuleid, 0, false, MUST_EXIST);
+    $url = $DB->get_record('url', array('id'=>$cm->instance), '*', MUST_EXIST);
+    $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
+    $context = context_module::instance($id);
+    url_view($url, $course, $cm, $context);
+    $PAGE->set_url('/mod/url/report.php', array('id' => $id));
+    $PAGE->set_title("报告");
+    $PAGE->set_heading("分析结果");
+    $PAGE->set_pagelayout('incourse');
+    $PAGE->requires->js('/mod/url/javascript/jquery-3.1.0.min.js', true);
+    $PAGE->requires->js('/mod/url/javascript/report.js');
+
+   //$PAGE->set_course($course);
+    echo $OUTPUT->header();
+    $temp = json_encode($studentArticleList[0]);
+    $data = new stdClass();
+    $data->stu = $studentArticleList; 
+    $data->ref = $refArticleList;
+    echo $OUTPUT->render_from_template('url/report', $data);
+    echo $OUTPUT->footer();
+
 
     
-    echo var_dump($refArticleList[0]->sentenceList);
-    echo var_dump($refArticleList[1]->sentenceList);
+    // echo var_dump($studentArticleList[0]->sentenceList);
+    // echo var_dump($studentArticleList[1]->sentenceList);
 
     // // extract data from report table
     // $reportInfo = array();
@@ -451,4 +473,5 @@ if ($mform->is_cancelled()) {
 //   //displays the form
 //     $mform->display();
 // }
-}?>
+}
+?>

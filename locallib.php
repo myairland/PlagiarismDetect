@@ -284,7 +284,16 @@ function url_print_workaround($url, $cm, $course) {
 
 
     $context = context_module::instance($cm->id);
-    $mform = new refuploadform("/moodle/mod/url/report.php?courseid=$course->id",array('contextid'=>$context->id,'courseid'=>$course->id));
+    $pageoptions = array();
+    $pageoptions['contextid'] = $context->id;
+    $pageoptions['courseid'] = $course->id;
+    $pageoptions['courseModuleid'] = $cm->id;
+
+
+    $reporturl = new moodle_url('/mod/url/report.php', $pageoptions);
+    
+    $mform = new refuploadform($reporturl,$pageoptions);
+    // $mform = new refuploadform("/moodle/mod/url/report.php?courseid=$course->id",array('contextid'=>$context->id,'courseid'=>$course->id));
     $mform->display();
 
     echo $OUTPUT->footer();

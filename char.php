@@ -42,25 +42,7 @@ class CharUtils{
     // 该词典有目的的填充可影响分析结果
     static public function remove_prepositionList($lst,$meanlessWords){ 
         //remove meaningless word in list
-        $lcs_list = array();
-        // $stop_words = $meanlessWords;
-        // // $sign = self::mb_str_split(',.!?;~，。！？；～');
-        // foreach($lst as $word){
-        //     // if(in_array($word,$sign) || in_array($word,$stop_words)){
-        //     //     continue;
-        //     // }
-        //     if(in_array($word,$stop_words)){
-        //          continue;
-        //      }
-        //     array_push($lcs_list,$word);
-        // }
-        $str = implode($lst);
-        foreach($meanlessWords as $word)
-        {
-            $str = str_replace($word,'',$str);
-        }
-
-        return   self::mb_str_split($str);
+        return preg_replace('/' .implode($meanlessWords). '/u','',$lst);
     }
 
     // 去除介词返回字符串版本

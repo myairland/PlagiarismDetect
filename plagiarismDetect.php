@@ -148,21 +148,24 @@ class PlagiarismDetect extends external_api
         
     }
     // parse student articles
-    public function parseStudentArticle(&$articleId)
+    public function parseStudentArticle()
     {
         $stuArticleList = array();
+        $titleId = 0;
         // initial student from Db 
-        initStudentAssignFromDb();
+        $this->initStudentAssignFromDb();
 
         foreach ($this->stuAssignmentWork as $stuAssign) {
             $article = new Article();
-            $article->articleId = $articleId;
+            $article->articleId = $titleId;
             $article->studentInfo = $stuAssign;
-            parseArticle($article,$stuAssign->content);
+            $this->parseArticle($article,$stuAssign->content);
             
-            $stuArticleList += array($articleId->$article);
-            $articleId += 1;
+            $stuArticleList += array($titleId=>$article);
+            $titleId += 1;
         }
+
+        return $stuArticleList;
     }
            
     //compare student homework to reference article
@@ -177,12 +180,15 @@ class PlagiarismDetect extends external_api
                     foreach($ref->sentenceList as $refSt)
                     {
                         // if plagirism happens
-                        if(isSimilar($stuSt,$refSt,$strict)) 
+                        if($this->isSimilar($stuSt,$refSt,$strict)) 
                         {
                             $plagRef = new PlagiarismReference();
                             $plagRef->articleId = $ref->articleId;
                             $plagRef->sentenceId = $refSt->sentenceId;
-                            $plagiarismList += array(count($plagiarismList)=>$plagRef);
+                            if(!isset($stuSt->plagiarismList)){
+                                $stuSt->plagiarismList = array();
+                            }
+                            $stuSt->plagiarismList += array(count($stuSt->plagiarismList)=>$plagRef);
                         }
                     }
                 }
@@ -194,8 +200,8 @@ class PlagiarismDetect extends external_api
     {
         $similarity = false;
 
-        $tmp1 = beforeCompareWork($stuSt);
-        $tmp2 = beforeCompareWork($refSt);
+        $tmp1 = $this->beforeCompareWork($stuSt);
+        $tmp2 = $this->beforeCompareWork($refSt);
         // when strict ,using lcs method
         if($strict){
             $lcs = $this->lcs($tmp1, $tmp2);
@@ -231,7 +237,7 @@ class PlagiarismDetect extends external_api
         return CharUtils::remove_meaningless_symbol(
                  CharUtils::remove_spaces(
                     CharUtils::remove_prepositionList(
-                        $str,$this->meanlessWords)));
+                        $str->content,$this->meanlessWords)));
     }
 
     //整理参考文献里面的句子

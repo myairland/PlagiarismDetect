@@ -1,0 +1,176 @@
+
+
+<style>
+.grow
+{
+        background-color:blue;
+        font-size:18px;
+        box-shadow: inset 0 0 0 25px #53a7ea;
+}
+span{
+    margin:0px;
+    padding:0px;
+}
+.container{
+    width:100%;
+    background-color:pink;
+    position:relative;
+    display: inline-block;
+    background: -webkit-gradient(linear, 0% 20%, 0% 1000%, from(#fff), to(#fff), color-stop(.1,#f3f3f3));
+    border: 1px solid #ccc;
+    -webkit-box-shadow: 0px 3px 30px rgba(0, 0, 0, 0.1) inset;
+    -webkit-border-bottom-right-radius: 6px 50px;  
+}
+.container:before{
+    content: '';
+    width: 50px;
+    height: 100px;
+    position:absolute;
+    bottom:0; right:0;
+    -webkit-box-shadow: 20px 20px 10px rgba(0, 0, 0, 0.1);
+    z-index:-1;
+    -webkit-transform: translate(-35px,-40px)
+                        skew(0deg,30deg)
+                        rotate(-25deg);
+}
+
+.container:after{
+    content: '';
+    width: 100px;
+    height: 100px;
+    top:0; left:0;
+    position:absolute;
+    display: inline-block;
+    z-index:-1;
+    -webkit-box-shadow: -10px -10px 10px rgba(0, 0, 0, 0.2);
+    -webkit-transform: rotate(2deg)
+                        translate(20px,25px)
+                        skew(20deg);
+}
+.leftInfo{
+    width:50%;
+    float:left;
+    display:none;
+
+}
+.rightInfo{
+    width:50%;
+    float:right;
+    display:none;
+}
+.header{
+    padding:10px;
+    margin:10px;
+    width:92%;
+    height:20px;
+    background: #fafafa; 
+    background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
+    background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa); 
+}
+.article{
+    padding:10px;
+    width:95%;
+    height:200px;
+    overflow:scroll;;
+}
+.nextStu{
+    cursor:pointer;
+    float:right;
+}
+.preStu{
+    cursor:pointer;
+    float:left;
+}
+.nextRef{
+    cursor:pointer;
+    float:right;
+}
+.preRef{
+    cursor:pointer;
+    float:left;
+}
+.title {
+    font-size:16px; 
+    font-weight:bold; 
+    color:#2B6FB6;
+ }
+.author{
+
+}
+</style>
+<div class="container">
+        <input type="hidden" id="curStu" value="0" />
+        <input type="hidden" id="curRef" value="0" />
+    <div class="leftInfo">
+        {{#stu}}
+        <div class="stuSection" data-show="{{articleId}}">
+            <div class="header">
+                <span class="preStu" data-show="{{articleId}}" >
+                    <a onclick="preStu('{{articleId}}')">
+                    上一页
+                    </a>
+                </span>
+                <span class="author">
+                {{studentInfo.last_name}}{{studentInfo.first_name}}
+                </span>
+                <span class="title">
+                {{studentInfo.title}}
+                </span>
+                <span class="download">
+                    <a onclick="fileDownload('{{articleId}}')">
+                       下载 
+                    </a>
+                </span>
+               <span  class="nextStu" data-show="{{articleId}}" >
+                    <a onclick="nextStu('{{articleId}}')">
+                    下一页
+                    </a>
+                </span>
+            </div>
+            <div class="article">
+            {{#sentenceList}}
+               <span data-plag="{{#plagiarismList}}{{articleId}}-{{sentenceId}} {{/plagiarismList}}">{{content}}</span>
+            {{/sentenceList}}
+            <br />
+            <hr />
+            </div>
+        </div>
+        {{/stu}}
+    </div>
+    <div class="rightInfo">
+        {{#ref}}
+        <div class="refSection" data-show="{{articleId}}">
+            <div class="header">
+                <span class="preRef" data-show="{{articleId}}" >
+                    <a onclick="preRef('{{articleId}}')">
+                    上一页
+                    </a>
+                </span>
+                <span class="title">
+                {{filename}}
+                </span>
+               <span  class="nextRef" data-show="{{articleId}}" >
+                    <a onclick="nextRef('{{articleId}}')">
+                    下一页
+                    </a>
+                </span>
+            </div>
+            <div class="article">
+            {{#sentenceList}}
+               <span data-plag="{{articleId}}-{{sentenceId}}">{{content}}</span>
+            {{/sentenceList}}
+            <br />
+            <hr />
+            </div>
+        </div>
+        {{/ref}}
+    </div>
+</div>
+
+{{#js}}
+
+init();
+//alert($("#okb").html());
+
+
+{{/js}}

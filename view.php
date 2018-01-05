@@ -110,3 +110,4 @@ url_print_workaround($url, $cm, $course);
 //         url_print_workaround($url, $cm, $course);
 //         break;
 // }
+?>
