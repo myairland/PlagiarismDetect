@@ -181,6 +181,7 @@ class PlagiarismDetect extends external_api
                     $similarity = 0; 
                     $articleId = "";
                     $sentenceId = "";
+                    $lcsPart = "";
                     foreach($ref->sentenceList as $refSt)
                     {
 
@@ -208,6 +209,7 @@ class PlagiarismDetect extends external_api
                                 $similarity = $ratio;
                                 $articleId = $ref->articleId;
                                 $sentenceId = $refSt->sentenceId;
+                                $lcsPart = implode("",$lcs);
                             }
                             
                         }else{
@@ -217,6 +219,7 @@ class PlagiarismDetect extends external_api
                                 $similarity = 1;
                                 $articleId = $ref->articleId;
                                 $sentenceId = $refSt->sentenceId;
+                                $lcsPart = $stuSt;
                             }
                         }
 
@@ -228,6 +231,7 @@ class PlagiarismDetect extends external_api
                         $plagRef->articleId = $articleId ;
                         $plagRef->sentenceId = $sentenceId;
                         $plagRef->similarity = $similarity;
+                        $plagRef->lcsPart = $lcsPart;
                         if(!isset($stuSt->plagiarismList)){
                             $stuSt->plagiarismList = array();
                         }

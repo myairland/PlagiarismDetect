@@ -1,6 +1,9 @@
 
 
 <style>
+a{
+    cursor:pointer;
+}
 .grow
 {
         background-color:#ff8000;
@@ -113,9 +116,6 @@ span{
 <div class="container">
         <input type="hidden" id="curStu" value="0" />
         <input type="hidden" id="curRef" value="0" />
-                <span id="selectArea" class="selectArea">
-
-                </span>
     <div class="leftInfo">
         {{#stu}}
         <div class="stuSection" data-show="{{articleId}}">
@@ -125,16 +125,19 @@ span{
                     上一页
                     </a>
                 </span>
-                <span class="author">
+                <span id="author{{articleId}}" class="author">
                 {{studentInfo.last_name}}{{studentInfo.first_name}}
                 </span>
-                <span class="title">
+                <span id="title{{articleId}}" class="title">
                 {{studentInfo.title}}
                 </span>
                 <span class="download">
                     <a onclick="fileDownload('{{articleId}}')">
                        下载 
                     </a>
+                </span>
+                <span id="selectArea{{articleId}}" class="selectArea">
+
                 </span>
                <span  class="nextStu" data-show="{{articleId}}" >
                     <a onclick="nextStu('{{articleId}}')">
@@ -144,7 +147,7 @@ span{
             </div>
             <div class="article">
             {{#sentenceList}}
-               <span data-plag="{{#plagiarismList}}{{articleId}}-{{sentenceId}}-{{similarity}} {{/plagiarismList}}">{{content}}</span>
+               <span data-plag="{{#plagiarismList}}{{articleId}}-{{sentenceId}}-{{similarity}}({{lcsPart}}) {{/plagiarismList}}">{{content}}</span>
             {{/sentenceList}}
             <br />
             <hr />

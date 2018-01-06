@@ -18,7 +18,9 @@ function init()
     colorPlagiarism("0","0");
 
     $(document).on("mouseup",function(){
-        $("#selectArea").html("选中文字" + getSelectionTextLength());
+        $("span[id*='selectArea'").each(function(){
+            $(this).html("选中文字" + getSelectionTextLength());
+        });
     });
 }
 
@@ -106,8 +108,15 @@ function colorPlagiarism(curStu,curRef)
           
             var plagArray = plag.split(" ");
             $.each(plagArray,function(refStIndex,value){
-                var refStPos = value.substring(0,value.lastIndexOf("-"));
-                var refSimilarity = value.substring(value.lastIndexOf("-") + 1);
+                // value = 1-0-0.9995(相同的值相同)
+                // get 1-0-0 part
+                var plagPart = value.substring(0,value.indexOf("("));
+                // get parenthese part
+                var lcsPart = value.substring(value.indexOf("(") + 1);
+                lcsPart = lcsPart.substring(0,lcsPart.length -1);
+
+                var refStPos = plagPart.substring(0,plagPart.lastIndexOf("-"));
+                var refSimilarity = plagPart.substring(plagPart.lastIndexOf("-") + 1);
                 var refSt = $(".rightInfo>div[data-show='" + curRef + "'] .article>span[data-plag='" + refStPos + "'");
                 if($.trim(value) != "" && value.substring(0,1) == curRef)
                 {
@@ -226,17 +235,52 @@ function initNextPage(str,sign)
 
 
 ///////////////////////////////////////////////
-function fileDownload(test)
+function fileDownload(curStu)
 {
-    var param = {};
-    param.str1 = "string";
-    param.str2 = "string2";
+    var param = prepareData(curStu); 
 
     $.post( "filedownload.php", param,function( data ) {
         var tmp = JSON.parse(data); 
         alert(tmp.age);
         alert(tmp.name);
       });
+}
+
+function prepareData(curStu)
+{
+    var data = {};
+    var stuInfo = new StuInfo($('#author' + curStu).html(),$('#title' + curStu).html());
+    data.stuInfo = stuInfo;
+    data.sentenceList = new Array();
+
+    $(".leftInfo>div[data-show='" + curStu + "'] .article>span").each(function(index,st){
+        var sentenceInfo = new Sentence(curStu,index,$(st).html(),null)
+        var plag = $(this).attr("data-plag");
+        if($.trim(plag) != "")
+        {
+            var plagArray = plag.split(" ");
+            sentenceInfo.plagiarismList = new Array();
+            $.each(plagArray,function(refStIndex,value){
+                // value = 1-0-0.9995(相同的值相同)
+                // get 1-0-0 part
+                var plagPart = value.substring(0,value.indexOf("("));
+                // get parenthese part
+                var lcsPart = value.substring(value.indexOf("(") + 1);
+                lcsPart = lcsPart.substring(0,lcsPart.length -1);
+
+                var refStPos = plagPart.substring(0,plagPart.lastIndexOf("-"));
+                var refSimilarity = plagPart.substring(plagPart.lastIndexOf("-") + 1);
+
+                var plagReference = new PlagiarismReference(curStu,index,refSimilarity,lcsPart);
+                sentenceInfo.plagiarismList.push(plagReference);
+
+            });
+        }
+        data.sentenceList.push(sentenceInfo);
+    });
+    
+    return data;
+
 }
 
 function round(num,v)
@@ -253,4 +297,31 @@ function getSelectionTextLength() {
         text = document.selection.createRange().text;
     }
     return text.length;
+}
+
+//student info
+function StuInfo(stuName,fileName)
+{
+    this.stuName = stuName;
+    this.fileName = fileName;
+}
+function PlagiarismReference(articleId,sentenceId,similarity,lcsPart)
+{
+    this.articleId = articleId;
+    this.sentenceId = sentenceId; 
+    // 相似度
+    this.similarity = similarity;
+    // 相似部分 
+    this.lcsPart = lcsPart;
+}
+//sentence object
+function Sentence(articleId,sentenceId,content,plagiarismList)
+{
+    this.articleId = articleId;
+    //唯一标识符
+    this.sentenceId = sentenceId;
+    //句子内容
+    this.content = content;
+    //关联的句子列表，抄袭的句子就放在这里
+    this.plagiarismList = plagiarismList;
 }

@@ -72,8 +72,10 @@ class Article{
 class PlagiarismReference{
     public $articleId;
     public $sentenceId; 
+    // 相似度
     public $similarity;
-
+    // 相似部分 
+    public $lcsPart;
 }
 // 句子单元
 class Sentence{
