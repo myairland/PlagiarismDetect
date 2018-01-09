@@ -1,4 +1,6 @@
 <?php
+require_once "char.php";
+
 class MdlWorkshopPlagReport{
    // 学生用户id
    public $author_id = 0;
@@ -104,5 +106,17 @@ class Character
 
     public $characterIndex;
 
+}
+
+class ColorSentence
+{
+    public $sentence;
+    public $stStrList;
+    function __construct($st) {
+        $this->sentence = $st;
+        $this->stStrList = CharUtils::mb_str_split($st);
+        $this->colorArray = array_fill(0,count($this->stStrList),0);
+    }
+    public $colorArray;
 }
 ?>

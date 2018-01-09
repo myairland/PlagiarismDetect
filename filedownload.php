@@ -1,8 +1,12 @@
 <?php
 
 require_once __DIR__ . '/bootstrap.php';
+require_once("char.php");
+require_once("plagiarismModel.php");
 
 use PhpOffice\PhpWord\Settings;
+$articleColor = array("000000","ffff00","ff0000","00ff00","0000ff","ff00ff","ff8000","8000ff","c000ff");
+
 
 Settings::loadConfig();
 
@@ -22,7 +26,7 @@ $author = $stuInfo["stuName"];
 $phpWord = new \PhpOffice\PhpWord\PhpWord();
 
 $fontStyleName = 'rStyle';
-$phpWord->addFontStyle($fontStyleName, array('bold' => true, 'italic' => true, 'size' => 16, 'allCaps' => true, 'doubleStrikethrough' => true));
+$phpWord->addFontStyle($fontStyleName, array('size' => 16, 'bgColor'=>'000000'));
 
 $paragraphStyleName = 'pStyle';
 $phpWord->addParagraphStyle($paragraphStyleName, array('alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 100));
@@ -33,22 +37,49 @@ $phpWord->addTitleStyle(1, array('bold' => true), array('spaceAfter' => 240));
 $section = $phpWord->addSection();
 
 // Simple text
-$section->addTitle('Welcome to PhpWord', 1);
-$section->addText('Hello World!');
+$section->addTitle($title." ".$author, 1);
 
 // Two text break
 $section->addTextBreak();
 
 // Define styles
-$section->addText('I am styled by a font style definition.', $fontStyleName);
-$section->addText('I am styled by a paragraph style definition.', null, $paragraphStyleName); 
-   $section->addText('I am styled by both font and paragraph style.', $fontStyleName, $paragraphStyleName);
 
-$section->addTextBreak();
+$phpWord->addFontStyle($fontStyleName, array('size' => 16));
+$textrun = $section->addTextRun();
+
 foreach($sentenceList as $st)
 {
-
-$section->addText($st["content"], $fontStyleName);
+    $content = $st["content"];
+    $plagList = $st["plagiarismList"];
+    if($plagList == null || $plagList == "")
+    {
+        $textrun->addText($content, $fontStyleName);
+    }else{
+        $colorSt = new ColorSentence($content);
+        foreach($plagList as $plag)
+        {
+           $lcsPartTmpArray =  CharUtils::mb_str_split($plag["lcsPart"]); 
+           $tmpStr = $colorSt->sentence;
+           $start = 0;
+           $index = 0;
+           foreach($lcsPartTmpArray as $lcsSingle)
+           {
+               while ($index < count($colorSt->stStrList)) {
+                  if($lcsSingle == $colorSt->stStrList[$index])
+                  {
+                    $colorSt->colorArray[$index] += 1;
+                    $index ++;
+                    break;
+                  } 
+                  $index++;
+               }
+           }
+        }
+        for($i = 0;$i < count($colorSt->stStrList);$i++)
+        {
+            $textrun->addText($colorSt->stStrList[$i],  array('size' => 16, 'bgColor'=>$articleColor[$colorSt->colorArray[$i]]));
+        }
+    }
 }
 
 echo write($phpWord, basename(__FILE__, '.php'), $writers);

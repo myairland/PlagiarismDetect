@@ -99,11 +99,11 @@ function colorPlagiarism(curStu,curRef)
         var plag = $(this).attr("data-plag");
         if($.trim(plag) != "")
         {
-            $(this).css("background-color",plagbackColor);  
-            $(this).hover(function(){
-                $(this).addClass("grow");
+            $(st).css("background-color",plagbackColor);  
+            $(st).hover(function(){
+                $(st).addClass("grow");
             },function(){
-                $(this).removeClass("grow");
+                $(st).removeClass("grow");
             })
           
             var plagArray = plag.split(" ");
@@ -120,6 +120,13 @@ function colorPlagiarism(curStu,curRef)
                 var refSt = $(".rightInfo>div[data-show='" + curRef + "'] .article>span[data-plag='" + refStPos + "'");
                 if($.trim(value) != "" && value.substring(0,1) == curRef)
                 {
+                    $(st).css("background-color",plagbackColor);  
+                    $(st).hover(function(){
+                        $(st).addClass("grow");
+                    },function(){
+                        $(st).removeClass("grow");
+                    })
+
                     refSt.css('background-color',plagbackColor);
                     var offset = refSt.offset().top;
                     $(st).hover(function(){
@@ -142,7 +149,7 @@ function colorPlagiarism(curStu,curRef)
 function hideAll()
 {
      $(".leftInfo>div[data-show!='']").hide();
-     $(".rightInfo>div[data-show!='']").hide();
+         $(".rightInfo>div[data-show!='']").hide();
      $(".leftInfo").show();
      $(".rightInfo").show();
 }
@@ -261,18 +268,20 @@ function prepareData(curStu)
             var plagArray = plag.split(" ");
             sentenceInfo.plagiarismList = new Array();
             $.each(plagArray,function(refStIndex,value){
-                // value = 1-0-0.9995(相同的值相同)
-                // get 1-0-0 part
-                var plagPart = value.substring(0,value.indexOf("("));
-                // get parenthese part
-                var lcsPart = value.substring(value.indexOf("(") + 1);
-                lcsPart = lcsPart.substring(0,lcsPart.length -1);
+                if($.trim(value) != ""){
+                    // value = 1-0-0.9995(相同的值相同)
+                    // get 1-0-0 part
+                    var plagPart = value.substring(0,value.indexOf("("));
+                    // get parenthese part
+                    var lcsPart = value.substring(value.indexOf("(") + 1);
+                    lcsPart = lcsPart.substring(0,lcsPart.length -1);
 
-                var refStPos = plagPart.substring(0,plagPart.lastIndexOf("-"));
-                var refSimilarity = plagPart.substring(plagPart.lastIndexOf("-") + 1);
+                    var refStPos = plagPart.substring(0,plagPart.lastIndexOf("-"));
+                    var refSimilarity = plagPart.substring(plagPart.lastIndexOf("-") + 1);
 
-                var plagReference = new PlagiarismReference(curStu,index,refSimilarity,lcsPart);
-                sentenceInfo.plagiarismList.push(plagReference);
+                    var plagReference = new PlagiarismReference(refStPos,refStIndex,refSimilarity,lcsPart);
+                    sentenceInfo.plagiarismList.push(plagReference);
+                }
 
             });
         }
