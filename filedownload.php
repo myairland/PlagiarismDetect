@@ -5,14 +5,14 @@ require_once("char.php");
 require_once("plagiarismModel.php");
 
 use PhpOffice\PhpWord\Settings;
-$articleColor = array("000000","ffff00","ff0000","00ff00","0000ff","ff00ff","ff8000","8000ff","c000ff");
+$articleColor = array("ffffff","ffff00","ff0000","00ff00","0000ff","ff00ff","ff8000","8000ff","c000ff");
 
 
 Settings::loadConfig();
 
 // Set writers
-$writers = array('Word2007' => 'docx');
-
+$extension = "docx";
+$format = "Word2007";
 // Turn output escaping on
 Settings::setOutputEscapingEnabled(true);
 
@@ -26,7 +26,6 @@ $author = $stuInfo["stuName"];
 $phpWord = new \PhpOffice\PhpWord\PhpWord();
 
 $fontStyleName = 'rStyle';
-$phpWord->addFontStyle($fontStyleName, array('size' => 16, 'bgColor'=>'000000'));
 
 $paragraphStyleName = 'pStyle';
 $phpWord->addParagraphStyle($paragraphStyleName, array('alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 100));
@@ -44,7 +43,7 @@ $section->addTextBreak();
 
 // Define styles
 
-$phpWord->addFontStyle($fontStyleName, array('size' => 16));
+$phpWord->addFontStyle($fontStyleName, array('size' => 12));
 $textrun = $section->addTextRun();
 
 foreach($sentenceList as $st)
@@ -77,32 +76,16 @@ foreach($sentenceList as $st)
         }
         for($i = 0;$i < count($colorSt->stStrList);$i++)
         {
-            $textrun->addText($colorSt->stStrList[$i],  array('size' => 16, 'bgColor'=>$articleColor[$colorSt->colorArray[$i]]));
+            $textrun->addText($colorSt->stStrList[$i],  array('size' => 12, 'bgColor'=>$articleColor[$colorSt->colorArray[$i]]));
         }
     }
-}
+}   
 
-echo write($phpWord, basename(__FILE__, '.php'), $writers);
+$filename = trim($author."_").date("Ymd_Hms");
 
-function write($phpWord, $filename, $writers)
-{
-    $result = '';
+$targetFile = __DIR__ . "/download/{$filename}.{$extension}";
+$phpWord->save($targetFile, $format);
 
-    // Write documents
-    foreach ($writers as $format => $extension) {
-        $result .= date('H:i:s') . " Write to {$format} format";
-        if (null !== $extension) {
-            $targetFile = __DIR__ . "/download/{$filename}.{$extension}";
-            $phpWord->save($targetFile, $format);
-        } else {
-            $result .= ' ... NOT DONE!';
-        }
-        $result .= PHP_EOL;
-    }
-
-   // $result .= getEndingNotes($writers);
-
-    return $result;
-}
+echo  "download/{$filename}.{$extension}";
 
 ?>
