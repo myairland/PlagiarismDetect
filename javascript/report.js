@@ -19,7 +19,9 @@ function init()
 
     $(document).on("mouseup",function(){
         $("span[id*='selectArea'").each(function(){
-            $(this).html("选中:" + getSelectionTextLength());
+            var selectText = getSelectionText().replace(/\s+/g, "");
+            var selectTextRemovePunction = selectText.replace(/[,.!:?;~，。：！？；～]/g, "") 
+            $(this).html("选中:" + selectText.length + "--" +  selectTextRemovePunction.length);
         });
     });
 }
@@ -274,6 +276,16 @@ function getSelectionTextLength() {
         text = document.selection.createRange().text;
     }
     return text.length;
+}
+
+function getSelectionText() {
+    var text = "";
+    if (window.getSelection) {
+        text = window.getSelection().toString();
+    } else if (document.selection && document.selection.type != "Control") {
+        text = document.selection.createRange().text;
+    }
+    return text;
 }
 
 //student info

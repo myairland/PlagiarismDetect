@@ -244,9 +244,13 @@ class PlagiarismDetect extends external_api
     
     private function beforeCompareWork($str)
     {
+        // return CharUtils::mb_str_split(CharUtils::remove_meaningless_symbol(
+        //          CharUtils::remove_spaces(
+        //             CharUtils::remove_prepositionList(
+        //                 $str->content,$this->meanlessWords))));
         return CharUtils::mb_str_split(CharUtils::remove_meaningless_symbol(
+                CharUtils::removePunction(
                  CharUtils::remove_spaces(
-                    CharUtils::remove_prepositionList(
                         $str->content,$this->meanlessWords))));
     }
 
