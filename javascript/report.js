@@ -90,7 +90,7 @@ function colorPlagiarism(curStu,curRef)
                         $(refSt).removeClass("grow");
                         $(st).css("position","static");
                         $(st).removeClass("grow");
-                        removeSpanColor($(st),spanText,value);
+                        removeSpanColor($(st),spanText,plag);
                     })
                 }
             });

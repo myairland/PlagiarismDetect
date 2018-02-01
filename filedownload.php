@@ -66,7 +66,7 @@ foreach($sentenceList as $st)
                while ($index < count($colorSt->stStrList)) {
                   if($lcsSingle == $colorSt->stStrList[$index])
                   {
-                    $colorSt->colorArray[$index] += 1;
+                    $colorSt->colorArray[$index] = intval($plag["articleId"]) + 1;
                     $index ++;
                     break;
                   } 

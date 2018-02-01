@@ -139,7 +139,7 @@ class PlagiarismDetect extends external_api
             $obj->content = $st;
             $obj->start = $start;
             $obj->length= mb_strlen($st);
-            $article->sentenceList += array($sentenceId => $obj);
+            $article->sentenceList = $article->sentenceList + array($sentenceId => $obj);
 
             $sentenceId += 1;
         }
@@ -161,7 +161,7 @@ class PlagiarismDetect extends external_api
             $article->studentInfo = $stuAssign;
             $this->parseArticle($article,$stuAssign->content);
             
-            $stuArticleList += array($titleId=>$article);
+            $stuArticleList = $stuArticleList + array($titleId=>$article);
             $titleId += 1;
         }
 
@@ -219,7 +219,7 @@ class PlagiarismDetect extends external_api
                                 $similarity = 1;
                                 $articleId = $ref->articleId;
                                 $sentenceId = $refSt->sentenceId;
-                                $lcsPart = $stuSt;
+                                $lcsPart = $stuSt->content;
                             }
                         }
 
@@ -235,7 +235,7 @@ class PlagiarismDetect extends external_api
                         if(!isset($stuSt->plagiarismList)){
                             $stuSt->plagiarismList = array();
                         }
-                        $stuSt->plagiarismList += array(count($stuSt->plagiarismList)=>$plagRef);
+                        $stuSt->plagiarismList = $stuSt->plagiarismList + array(count($stuSt->plagiarismList)=>$plagRef);
                     }
                 }
             }
