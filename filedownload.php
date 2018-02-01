@@ -80,7 +80,6 @@ foreach($sentenceList as $st)
         }
     }
 }   
-
 $filename = trim($author."_").date("Ymd_Hms");
 
 $targetFile = __DIR__ . "/download/{$filename}.{$extension}";

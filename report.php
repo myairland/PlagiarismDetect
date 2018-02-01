@@ -100,11 +100,11 @@ if ($mform->is_cancelled()) {
 
      $plag->compareArticle($studentArticleList,$refArticleList,true);
 
-    $cm = get_coursemodule_from_id('url', $courseModuleid, 0, false, MUST_EXIST);
-    $url = $DB->get_record('url', array('id'=>$cm->instance), '*', MUST_EXIST);
-    $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
-    $context = context_module::instance($id);
-    url_view($url, $course, $cm, $context);
+    // $cm = get_coursemodule_from_id('url', $courseModuleid, 0, false, MUST_EXIST);
+    // $url = $DB->get_record('url', array('id'=>$cm->instance), '*', MUST_EXIST);
+    // $course = $DB->get_record('course', array('id'=>$cm->course), '*', MUST_EXIST);
+    // $context = context_module::instance($id);
+    // url_view($url, $course, $cm, $context);
     $PAGE->set_url('/mod/url/report.php', array('id' => $id));
     $PAGE->set_title("报告");
     $PAGE->set_heading("分析结果");

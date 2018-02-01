@@ -56,6 +56,15 @@ span{
                         translate(20px,25px)
                         skew(20deg);
 }
+.mainheader{
+    width:92%;
+    height:10px;
+    padding:10px;
+    margin:10px;
+    background: #fafafa; 
+    background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa));
+    background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa); 
+}
 .leftInfo{
     width:50%;
     float:left;
@@ -112,7 +121,7 @@ span{
     font-size:16px; 
     font-weight:bold; 
     color:#990033;
-    width:10%;
+    width:30%;
 }
 .download{
     display:inline-block;
@@ -120,6 +129,8 @@ span{
 }
 .selectArea{
     display:inline-block;
+    color:maroon;
+    width:11%;
 }
 .tips {
   background-color: #f00;
@@ -138,6 +149,17 @@ span{
 <div class="container">
         <input type="hidden" id="curStu" value="0" />
         <input type="hidden" id="curRef" value="0" />
+    <div class="mainheader">
+                <span class="download">
+                    <a onclick="fileDownload()">下载当前学生</a>
+                </span>
+                <span id="selectArea" class="selectArea">
+                    选中:0
+                </span>
+                <span id="selectAreaLess" class="selectArea">
+                    选中(不计标点):0
+                </span>
+    </div>
     <div class="leftInfo">
         {{#stu}}
         <div class="stuSection" data-show="{{articleId}}">
@@ -149,12 +171,6 @@ span{
                 </span>
                 <span id="author{{articleId}}" class="author">{{studentInfo.last_name}}{{studentInfo.first_name}}</span>
                 <span id="title{{articleId}}" class="title">{{studentInfo.title}}</span>
-                <span class="download">
-                    <a onclick="fileDownload('{{articleId}}')">点击下载</a>
-                </span>
-                <span id="selectArea{{articleId}}" class="selectArea">
-
-                </span>
                <span  class="nextStu" data-show="{{articleId}}" >
                     <a onclick="nextStu('{{articleId}}')">
                     下一页

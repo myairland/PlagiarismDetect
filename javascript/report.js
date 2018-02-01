@@ -18,11 +18,14 @@ function init()
     colorPlagiarism("0","0");
 
     $(document).on("mouseup",function(){
-        $("span[id*='selectArea'").each(function(){
-            var selectText = getSelectionText().replace(/\s+/g, "");
-            var selectTextRemovePunction = selectText.replace(/[,.!:?;~，。：！？；～]/g, "") 
-            $(this).html("选中:" + selectText.length + "--" +  selectTextRemovePunction.length);
-        });
+        var selectText = getSelectionText().replace(/\s+/g, "");
+        var Chinense = "。●？！：;—（）{}，、“”～〈〉‹›﹛﹜『』〖〗［］《》〔〕{}「」【】";
+        var English = ".?•!:;-_()\\[\\]{},'\"/\\~";
+        var reg = new RegExp("[" +  Chinense + "]","g");
+        //var reg = /[" + Chinense + English + "]/g;
+        var selectTextRemovePunction = selectText.replace(reg, "") 
+        $("#selectArea").html("选中:" + selectText.length);
+        $("#selectAreaLess").html("选中(不计标点):" + selectTextRemovePunction.length);
     });
 }
 //color the student article and ref
@@ -71,8 +74,17 @@ function colorPlagiarism(curStu,curRef)
                        $(refSt).addClass("grow");
                         changeSpanColor($(st),spanText,lcsPart);
                         $(st).css("position","relative");
-                        $(st).append("<span class='tips'>相似度:" + parseFloat(round(refSimilarity,4)) * 100 + "%</span>")
+                        $(st).append("<span class='tips'>相似度:" + round(refSimilarity * 100,2) + "%</span>")
                         $(st).addClass("grow");
+                        //判断相似度展示不完全的情况
+                        var similaritySpan = $(st).children(":last");
+                        var parentDiv = $(similaritySpan).parent().parent();
+                        var diff = similaritySpan.position().left + similaritySpan.width() - parentDiv.position().left - parentDiv.width();
+                        if(diff > 0 )
+                        {
+                            var result =  similaritySpan.position().left - diff;
+                            similaritySpan.css("left",-1 * (diff + 5));
+                        }
                     },function(){
                         removeSpanColor($(refSt),refSpanText,refAttr);
                         $(refSt).removeClass("grow");
@@ -214,8 +226,9 @@ function initNextPage(str,sign)
 
 
 ///////////////////////////////////////////////
-function fileDownload(curStu)
+function fileDownload()
 {
+    var curStu = $("#curStu").val(); 
     var param = prepareData(curStu); 
 
     $.post( "filedownload.php", param,function( data ) {
