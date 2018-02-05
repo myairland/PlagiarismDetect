@@ -133,7 +133,7 @@ function removeSpanColor(st,text,attr)
 function hideAll()
 {
      $(".leftInfo>div[data-show!='']").hide();
-         $(".rightInfo>div[data-show!='']").hide();
+     $(".rightInfo>div[data-show!='']").hide();
      $(".leftInfo").show();
      $(".rightInfo").show();
 }
@@ -144,7 +144,17 @@ function nextRef(curRef)
     var refInt = parseInt($('#curRef').val()) + 1;
     var curStu = $('#curStu').val();
     nextPage("rightInfo","Ref",curRef);
-    colorPlagiarism(curStu,refInt.toString());
+
+    var curView = $('#curView').val();
+    //表格视图
+    if(curView == "1")
+    {
+        changeTable(curStu,refInt.toString());
+    }else{
+        //文章视图
+        colorPlagiarism(curStu,refInt.toString());
+    } 
+
 
 }
 // pre ref
@@ -153,7 +163,16 @@ function preRef(curRef)
     var refInt = parseInt($('#curRef').val()) - 1;
     var curStu = $('#curStu').val();
     prePage("rightInfo","Ref",curRef);
-    colorPlagiarism(curStu,refInt.toString());
+
+    var curView = $('#curView').val();
+    //表格视图
+    if(curView == "1")
+    {
+        changeTable(curStu,refInt.toString());
+    }else{
+        //文章视图
+        colorPlagiarism(curStu,refInt.toString());
+    } 
 }
 // next stu
 function nextStu(curStu)
@@ -161,7 +180,16 @@ function nextStu(curStu)
     var stuInt = parseInt($('#curStu').val()) + 1;
     var curRef = $('#curRef').val();
     nextPage("leftInfo","Stu",curStu);
-    colorPlagiarism(stuInt.toString(),curRef);
+
+    var curView = $('#curView').val();
+    //表格视图
+    if(curView == "1")
+    {
+        changeTable(stuInt.toString(),curRef);
+    }else{
+        //文章视图
+        colorPlagiarism(stuInt.toString(),curRef);
+    } 
 }
 // prestu
 function preStu(curStu)
@@ -169,7 +197,16 @@ function preStu(curStu)
     var stuInt = parseInt($('#curStu').val()) - 1;
     var curRef = $('#curRef').val();
     prePage("leftInfo","Stu",curStu);
-    colorPlagiarism(stuInt.toString(),curRef);
+
+    var curView = $('#curView').val();
+    //表格视图
+    if(curView == "1")
+    {
+        changeTable(stuInt.toString(),curRef);
+    }else{
+        //文章视图
+        colorPlagiarism(stuInt.toString(),curRef);
+    } 
 }
 
 function nextPage(str,sign,cur)
@@ -222,9 +259,84 @@ function initNextPage(str,sign)
     $("." + str + " .pre" + sign + "[data-show='0']").css('visibility','hidden');
     $("." + str + ">div[data-show='0']").show();
 }
+//总体视图
+///////////////////////////////////////////////////
+function changeTable(curStu,curRef)
+{
 
+    var table = $('#tableShow');
+    table.find("tr").each(function(index,value){
+        //avoid removing th header
+        if($(value).find("th").length == 0)
+            $(value).remove();
+    });
 
+    var stuIndex = 0;
+    $(".leftInfo>div[data-show='" + curStu + "'] .article>span[data-plag!='']").each(function(index,st){
+        var tr = $("<tr></tr>");
+        table.append(tr);  
 
+        var plag = $(this).attr("data-plag");
+        if($.trim(plag) != "")
+        {
+            var plagArray = plag.split(" ");
+            $.each(plagArray,function(refStIndex,value){
+                // value = 1-0-0.9995(相同的值相同)
+                // get 1-0-0 part
+                var plagPart = value.substring(0,value.indexOf("("));
+                // get parenthese part
+                var lcsPart = value.substring(value.indexOf("(") + 1);
+                lcsPart = lcsPart.substring(0,lcsPart.length -1);
+
+                var refStPos = plagPart.substring(0,plagPart.lastIndexOf("-"));
+                var refSimilarity = plagPart.substring(plagPart.lastIndexOf("-") + 1);
+                var refSt = $(".rightInfo>div[data-show='" + curRef + "'] .article>span[data-plag='" + refStPos + "'");
+                if($.trim(plagPart) != "" && plagPart.substring(0,1) == curRef)
+                {
+                    stuIndex =  stuIndex + 1;
+                    tr.append("<td>" + stuIndex + "</td>")
+                    tr.append("<td>" + $(st).html() + "</td>")
+                    tr.append("<td>" + $(refSt).html() + "</td>")
+                    tr.append("<td>" + lcsPart + "</td>")
+                    tr.append("<td>" + round(refSimilarity * 100,2) + "%</td>")
+                }
+            });
+        }
+
+    });
+
+    $(".mainTab").show();
+}
+function changeView()
+{
+    var curView = $("#curView").val();
+    var curRef = $('#curRef').val();
+    var curStu = $('#curStu').val();
+
+    if(curView == "0"){
+        //从详细视图切换到列表视图
+        $("#curView").val("1");
+        //隐藏详细视图
+        $(".leftInfo>div[data-show!='']>.article").hide();
+        $(".rightInfo>div[data-show!='']>.article").hide();
+
+        changeTable(curStu,curRef);
+    }
+    else{
+        //从列表视图切换到详细视图
+        $("#curView").val("0");
+
+        $(".mainTab").hide();
+        colorPlagiarism($('#curStu').val(),$('#curRef').val());
+        //init page
+        $(".leftInfo>div[data-show!='']>.article").show();
+        $(".rightInfo>div[data-show!='']>.article").show();
+        //
+    }
+
+}
+
+//下载相关
 ///////////////////////////////////////////////
 function fileDownload()
 {

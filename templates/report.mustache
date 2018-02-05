@@ -104,10 +104,12 @@ span{
 .nextRef{
     cursor:pointer;
     float:right;
+    width:8%;
 }
 .preRef{
     cursor:pointer;
     float:left;
+    width:8%;
 }
 .title {
     display:inline-block;
@@ -145,10 +147,114 @@ span{
   white-space: pre;
   z-index:999;
 }
+.mainTab{
+    display:none;
+}
+
+table a:link { 
+    color: #666; 
+    font-weight: bold; 
+    text-decoration:none; 
+} 
+table a:visited { 
+    color: #999999; 
+    font-weight:bold; 
+    text-decoration:none; 
+} 
+table a:active, 
+table a:hover { 
+    color: #bd5a35; 
+    text-decoration:underline; 
+} 
+table { 
+    font-family:Arial, Helvetica, sans-serif; 
+    color:#666; 
+    font-size:12px; 
+    text-shadow: 1px 1px 0px #fff; 
+    background:#eaebec; 
+    margin:20px; 
+    border:#ccc 1px solid; 
+    
+    -moz-border-radius:3px; 
+    -webkit-borde-rradius:3px; 
+    border-radius:3px; 
+    
+    -moz-box-shadow: 0 1px 2px #d1d1d1; 
+    -webkit-box-shadow: 0 1px 2px #d1d1d1; 
+    box-shadow: 0 1px 2px #d1d1d1; 
+} 
+table th { 
+    padding:21px 25px 22px 25px; 
+    border-top:1px solid #fafafa; 
+    border-bottom:1px solid #e0e0e0; 
+    
+    background: #ededed; 
+    background: -webkit-gradient(linear, left top, left bottom, from(#ededed), to(#ebebeb)); 
+    background: -moz-linear-gradient(top,  #ededed,  #ebebeb); 
+} 
+table th:firstchild { 
+    text-align: left; 
+    padding-left:20px; 
+} 
+table tr:firstchild th:firstchild { 
+    -moz-border-radius-topleft:3px; 
+    -webkit-border-topleft-radius:3px; 
+    border-top-left-radius:3px; 
+} 
+table tr:firstchild th:lastchild { 
+    -moz-borde-radius-topright:3px; 
+    -webkit-border-topright-radius:3px; 
+    border-top-right-radius:3px; 
+} 
+table tr { 
+    text-align: center; 
+    padding-left:20px; 
+} 
+table td:firstchild { 
+    text-align: left; 
+    padding-left:20px; 
+    border-left: 0; 
+} 
+table td { 
+    padding:18px; 
+    border-top: 1px solid #ffffff; 
+    border-bottom:1px solid #e0e0e0; 
+    border-left: 1px solid #e0e0e0; 
+    text-align: left;
+    word-space: nowrap;
+    
+    background: #fafafa; 
+    background: -webkit-gradient(linear, left top, left bottom, from(#fbfbfb), to(#fafafa)); 
+    background: -moz-linear-gradient(top,  #fbfbfb,  #fafafa); 
+} 
+table tr.even td { 
+    background: #f6f6f6; 
+    background: -webkit-gradient(linear, left top, left bottom, from(#f8f8f8), to(#f6f6f6)); 
+    background: -moz-linear-gradient(top,  #f8f8f8,  #f6f6f6); 
+} 
+table tr:lastchild td { 
+    border-bottom:0; 
+} 
+table tr:lastchild td:firstchild { 
+    -moz-border-radius-bottomleft:3px; 
+    -webkit-border-bottom-left-radius:3px; 
+    border-bottom-left-radius:3px; 
+} 
+table tr:lastchild td:lastchild { 
+    -moz-border-radius-bottomright:3px; 
+    -webkit-border-bottom-right-radius:3px; 
+    border-bottom-right-radius:3px; 
+} 
+table tr:hover td { 
+    background: #f2f2f2; 
+    background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0)); 
+    background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);	 
+}
 </style>
 <div class="container">
         <input type="hidden" id="curStu" value="0" />
         <input type="hidden" id="curRef" value="0" />
+        <input type="hidden" id="curView" value="0" />
     <div class="mainheader">
                 <span class="download">
                     <a onclick="fileDownload()">下载当前学生</a>
@@ -159,6 +265,9 @@ span{
                 <span id="selectAreaLess" class="selectArea">
                     选中(不计标点):0
                 </span>
+                <span>
+                    <a onclick="changeView()">切换视图</a>
+                </span>
     </div>
     <div class="leftInfo">
         {{#stu}}
@@ -166,14 +275,14 @@ span{
             <div class="header">
                 <span class="preStu" data-show="{{articleId}}" >
                     <a onclick="preStu('{{articleId}}')">
-                    上一页
+                    上一个
                     </a>
                 </span>
                 <span id="author{{articleId}}" class="author">{{studentInfo.last_name}}{{studentInfo.first_name}}</span>
                 <span id="title{{articleId}}" class="title">{{studentInfo.title}}</span>
                <span  class="nextStu" data-show="{{articleId}}" >
                     <a onclick="nextStu('{{articleId}}')">
-                    下一页
+                    下一个
                     </a>
                 </span>
             </div>
@@ -193,7 +302,7 @@ span{
             <div class="header">
                 <span class="preRef" data-show="{{articleId}}" >
                     <a onclick="preRef('{{articleId}}')">
-                    上一页
+                    上一篇
                     </a>
                 </span>
                 <span class="title">
@@ -201,7 +310,7 @@ span{
                 </span>
                <span  class="nextRef" data-show="{{articleId}}" >
                     <a onclick="nextRef('{{articleId}}')">
-                    下一页
+                    下一篇
                     </a>
                 </span>
             </div>
@@ -214,6 +323,16 @@ span{
             </div>
         </div>
         {{/ref}}
+    </div>
+
+    <div class="mainTab">
+        <table id="tableShow">
+            <th style="width:5%">序号</th>
+            <th style="width:30%">学生的句子</th>
+            <th style="width:30%">参考文献的句子</th>
+            <th style="width:25%">相似部分</th>
+            <th style="width:10%">相似度</th>
+        </table>
     </div>
 </div>
 

@@ -107,7 +107,7 @@ if ($mform->is_cancelled()) {
     // url_view($url, $course, $cm, $context);
     $PAGE->set_url('/mod/url/report.php', array('id' => $id));
     $PAGE->set_title("报告");
-    $PAGE->set_heading("分析结果");
+    //$PAGE->set_heading("分析结果");
     $PAGE->set_pagelayout('incourse');
     $PAGE->requires->js('/mod/url/javascript/jquery-3.1.0.min.js', true);
     $PAGE->requires->js('/mod/url/javascript/report.js');
