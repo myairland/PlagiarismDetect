@@ -1,5 +1,7 @@
 {
     "require": {
-        "phpoffice/phpword": "^0.13.0"
+        "phpoffice/phpword": "^0.13.0",
+        "phpzip/phpzip": ">=2.0.7"
+
     }
 }

@@ -129,10 +129,23 @@ span{
     display:inline-block;
     width:10%;
 }
+.changeView{
+    display:inline-block;
+    width:10%;
+}
+.downloadAll{
+    display:inline-block;
+    width:10%;
+}
 .selectArea{
     display:inline-block;
     color:maroon;
     width:11%;
+}
+.selectAreaLess{
+    display:inline-block;
+    color:maroon;
+    width:15%;
 }
 .tips {
   background-color: #f00;
@@ -148,6 +161,17 @@ span{
   z-index:999;
 }
 .mainTab{
+    display:none;
+}
+.globalView{
+    display:none;
+}
+.changeGlobalView{
+    width:10%;
+    display:none;
+}
+.backToGlobal{
+    width:10%;
     display:none;
 }
 
@@ -251,24 +275,33 @@ table tr:hover td {
     background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);	 
 }
 </style>
+<div id="test"></div>
 <div class="container">
         <input type="hidden" id="curStu" value="0" />
         <input type="hidden" id="curRef" value="0" />
         <input type="hidden" id="curView" value="0" />
+    <!-- 头部 工具栏-->
     <div class="mainheader">
+                <span class="downloadAll">
+                    <a onclick="filedownloadAll()">下载全部学生</a>
+                </span>
                 <span class="download">
                     <a onclick="fileDownload()">下载当前学生</a>
                 </span>
                 <span id="selectArea" class="selectArea">
                     选中:0
                 </span>
-                <span id="selectAreaLess" class="selectArea">
+                <span id="selectAreaLess" class="selectAreaLess">
                     选中(不计标点):0
                 </span>
-                <span>
-                    <a onclick="changeView()">切换视图</a>
+                <span class="changeView">
+                    <a onclick="changeView()">表格视图</a>
+                </span>
+                <span class="changeGlobalView">
+                    <a onclick="changeToGlobalView()">统计视图</a>
                 </span>
     </div>
+    <!-- 学生文章区 -->
     <div class="leftInfo">
         {{#stu}}
         <div class="stuSection" data-show="{{articleId}}">
@@ -296,6 +329,7 @@ table tr:hover td {
         </div>
         {{/stu}}
     </div>
+    <!-- 参考文献区 -->
     <div class="rightInfo">
         {{#ref}}
         <div class="refSection" data-show="{{articleId}}">
@@ -324,7 +358,7 @@ table tr:hover td {
         </div>
         {{/ref}}
     </div>
-
+    <!-- 表格视图区 -->
     <div class="mainTab">
         <table id="tableShow">
             <th style="width:5%">序号</th>
@@ -333,6 +367,17 @@ table tr:hover td {
             <th style="width:25%">相似部分</th>
             <th style="width:10%">相似度</th>
         </table>
+    </div>
+    <!-- 总体视图区 -->
+    <div class="globalView">
+        <table id="tableAll">
+            <th style="width:5%">序号</th>
+            <th style="width:30%">学生姓名</th>
+            <th style="width:30%">文章字数</th>
+            <th style="width:25%">相似字数</th>
+            <th style="width:10%">相似度</th>
+        </table>
+
     </div>
 </div>
 

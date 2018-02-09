@@ -6,16 +6,13 @@ var plagbackColor= '#ffff62';
 
 function init()
 {
-    // var curStu = $('#curStu').val();
-
     hideAll();
 
+    //下载当前学生隐藏
+    $(".mainheader").children("span").hide();
+    $(".downloadAll").show();
 
-    //init next page
-    initNextPage("leftInfo","Stu");
-    initNextPage("rightInfo","Ref");
-
-    colorPlagiarism("0","0");
+    initGlobalView();
 
     $(document).on("mouseup",function(){
         var selectText = getSelectionText().replace(/\s+/g, "");
@@ -23,10 +20,109 @@ function init()
         var English = ".?•!:;-_()\\[\\]{},'\"/\\~";
         var reg = new RegExp("[" +  Chinense + "]","g");
         //var reg = /[" + Chinense + English + "]/g;
-        var selectTextRemovePunction = selectText.replace(reg, "") 
+        var selectTextRemovePunction = selectText.replace(reg, "");
         $("#selectArea").html("选中:" + selectText.length);
         $("#selectAreaLess").html("选中(不计标点):" + selectTextRemovePunction.length);
     });
+}
+
+function removePunction(text)
+{
+    var Chinense = "。●？！：;—（）{}，、“”～〈〉‹›﹛﹜『』〖〗［］《》〔〕{}「」【】";
+    var English = ".?•!:;-_()\\[\\]{},'\"/\\~";
+    var reg = new RegExp("[" +  Chinense + "]","g");
+    return text.replace(/\s+/g, "").replace(reg,"");
+}
+
+function initGlobalView()
+{
+   var table = $("#tableAll")
+   
+   var stuIndex = 0;
+   $(".leftInfo>div[data-show!='']").each(function(stuIndex,stu){
+        var stuName = "<a onclick='jumpToDetail(" + $(stu).attr("data-show")  + ")' >" + $(stu).find(".author").html() + "</a>";
+        var total = 0.0; 
+        var plagCnt = 0.0;
+
+        $(stu).children("div.article").children("span").each(function(spanIndex,span){
+            var plag = $(this).attr("data-plag");
+            if($.trim(plag) != "")
+            {
+                var plagArray = plag.split(" ");
+                var originalArray = $(span).html().split("");
+                var assitArray = Array.apply(null, Array(originalArray.length)).map(Number.prototype.valueOf,0)
+                $.each(plagArray,function(refStIndex,value){
+                    // value = 1-0-0.9995(相同的值相同)
+                    // get 1-0-0 part
+                    var plagPart = value.substring(0,value.indexOf("("));
+                    // get parenthese part
+                    var lcsPart = value.substring(value.indexOf("(") + 1);
+                    lcsPart = lcsPart.substring(0,lcsPart.length -1);
+                    
+                    var lcsPartArray = lcsPart.split("");
+                    var index = 0;
+                    //一句话抄袭字数
+                    for(var i = 0;i < lcsPartArray.length;i++)
+                    {
+                        while (index < originalArray.length) {
+                            if(lcsPartArray[i] == originalArray[index])
+                            {
+                                assitArray[index] = 1;
+                                index ++;
+                                break;
+                            } 
+                            index++;
+                        }
+                    }
+                });
+                //统计这句话总抄袭数 
+                for(var i = 0,n = assitArray.length; i < n; i++) 
+                {
+                    plagCnt += assitArray[i];
+                }
+            }
+            total = total + removePunction($(span).html()).length;
+        });
+        
+
+        var tr = $("<tr></tr>");
+        table.append(tr);
+        
+        stuIndex =  stuIndex + 1;
+        tr.append("<td>" + stuIndex + "</td>");
+        tr.append("<td>" + stuName + "</td>");
+        tr.append("<td>" + total + "</td>");
+        tr.append("<td>" + plagCnt + "</td>");
+        tr.append("<td>" + round(plagCnt / total * 100,2) + "%</td>");
+   });
+
+   $(".globalView").show();
+
+}
+function jumpToDetail(curStu)
+{
+    $(".mainheader").children("span").show();
+
+    $(".globalView").hide();
+
+    $('#curStu').val(curStu.toString());
+    $('#curRef').val("0");
+    $('#curView').val("0");
+    //init next page
+    initPagination("leftInfo","Stu",curStu.toString());
+    initPagination("rightInfo","Ref","0");
+    //跳转后 默认第一篇文献
+    colorPlagiarism(curStu.toString(),"0");
+    scrollTo(0,0);
+
+}
+function changeToGlobalView()
+{
+    $(".mainheader").children("span").hide();
+    $(".downloadAll").show();
+    hideAll();
+
+    $(".globalView").show();
 }
 //color the student article and ref
 function colorPlagiarism(curStu,curRef)
@@ -134,6 +230,7 @@ function hideAll()
 {
      $(".leftInfo>div[data-show!='']").hide();
      $(".rightInfo>div[data-show!='']").hide();
+     $(".mainTab").hide();
      $(".leftInfo").show();
      $(".rightInfo").show();
 }
@@ -247,19 +344,25 @@ function prePage(str,sign,cur)
     $('#cur' + sign).val(preInt.toString());
 
 }
-function initNextPage(str,sign)
+function initPagination(str,sign,cur)
 {
     var lastStu = $("." + str + ">div[data-show!='']").last().attr("data-show");
-    if('0' == lastStu)
+    if(cur == lastStu)
     {
         //hide下一页
-        $("." + str + " .next" + sign + "[data-show='0']").css('visibility','hidden');
+        $("." + str + " .next" + sign + "[data-show='" + cur + "']").css('visibility','hidden');
     }
-    //hide pre page
-    $("." + str + " .pre" + sign + "[data-show='0']").css('visibility','hidden');
-    $("." + str + ">div[data-show='0']").show();
+
+    var firstStu = $("." + str + ">div[data-show!='']").first().attr("data-show");
+    if(cur == firstStu)
+    {
+        //hide上一页
+        $("." + str + " .pre" + sign + "[data-show='" + cur + "']").css('visibility','hidden');
+    }
+
+    $("." + str + ">div[data-show='" + cur + "']").show();
 }
-//总体视图
+// 表格视图
 ///////////////////////////////////////////////////
 function changeTable(curStu,curRef)
 {
@@ -294,11 +397,11 @@ function changeTable(curStu,curRef)
                 if($.trim(plagPart) != "" && plagPart.substring(0,1) == curRef)
                 {
                     stuIndex =  stuIndex + 1;
-                    tr.append("<td>" + stuIndex + "</td>")
-                    tr.append("<td>" + $(st).html() + "</td>")
-                    tr.append("<td>" + $(refSt).html() + "</td>")
-                    tr.append("<td>" + lcsPart + "</td>")
-                    tr.append("<td>" + round(refSimilarity * 100,2) + "%</td>")
+                    tr.append("<td>" + stuIndex + "</td>");
+                    tr.append("<td>" + $(st).html() + "</td>");
+                    tr.append("<td>" + $(refSt).html() + "</td>");
+                    tr.append("<td>" + lcsPart + "</td>");
+                    tr.append("<td>" + round(refSimilarity * 100,2) + "%</td>");
                 }
             });
         }
@@ -335,17 +438,47 @@ function changeView()
     }
 
 }
+//全局视图
+///////////////////////////////////////////////
+function globalView()
+{
+
+}
+
 
 //下载相关
 ///////////////////////////////////////////////
+function filedownloadAll()
+{
+    var param = {};
+
+    param.stuList = Array();
+
+    $(".leftInfo>div[data-show!='']").each(function(index,div){
+        var curStu = $(div).attr("data-show")
+        var data = prepareData(curStu);
+        param.stuList.push(data);
+    });
+    
+    $.post( "filedownload.php", param,function( data ) {
+        window.location.href = data;
+      }).fail(function(message){alert("服务器返回错误");});
+
+
+}
+
 function fileDownload()
 {
-    var curStu = $("#curStu").val(); 
-    var param = prepareData(curStu); 
+    var param = {};
+    var curStu = $('#curStu').val();
+
+    param.stuList = Array();
+
+    param.stuList.push(prepareData(curStu));
 
     $.post( "filedownload.php", param,function( data ) {
         window.location.href = data;
-      });
+      }).fail(function(message){alert("服务器返回错误");});
 }
 // download data
 function prepareData(curStu)
@@ -354,6 +487,7 @@ function prepareData(curStu)
     var stuInfo = new StuInfo($('#author' + curStu).text(),$('#title' + curStu).text());
     data.stuInfo = stuInfo;
     data.sentenceList = new Array();
+    //1是单个下载 
 
     $(".leftInfo>div[data-show='" + curStu + "'] .article>span").each(function(index,st){
         var sentenceInfo = new Sentence(curStu,index,$(st).html(),null)

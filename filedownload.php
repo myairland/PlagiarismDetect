@@ -17,74 +17,106 @@ $format = "Word2007";
 Settings::setOutputEscapingEnabled(true);
 
 $array = array(); 
-$stuInfo = $_POST['stuInfo'];
-$sentenceList = $_POST['sentenceList'];
+$stuList = $_POST['stuList'];
 
-$title = $stuInfo["fileName"];
-$author = $stuInfo["stuName"];
+$tempFolder = date("Ymd_Hms");
+$zipFolder = date("YmdHms");
+mkdir(__DIR__ . "/download/{$tempFolder}");
 
-$phpWord = new \PhpOffice\PhpWord\PhpWord();
+$zip = new ZipArchive();
 
-$fontStyleName = 'rStyle';
-
-$paragraphStyleName = 'pStyle';
-$phpWord->addParagraphStyle($paragraphStyleName, array('alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 100));
-
-$phpWord->addTitleStyle(1, array('bold' => true), array('spaceAfter' => 240));
-
-// New portrait section
-$section = $phpWord->addSection();
-
-// Simple text
-$section->addTitle($title." ".$author, 1);
-
-// Two text break
-$section->addTextBreak();
-
-// Define styles
-
-$phpWord->addFontStyle($fontStyleName, array('size' => 12));
-$textrun = $section->addTextRun();
-
-foreach($sentenceList as $st)
-{
-    $content = $st["content"];
-    $plagList = $st["plagiarismList"];
-    if($plagList == null || $plagList == "")
-    {
-        $textrun->addText($content, $fontStyleName);
-    }else{
-        $colorSt = new ColorSentence($content);
-        foreach($plagList as $plag)
-        {
-           $lcsPartTmpArray =  CharUtils::mb_str_split($plag["lcsPart"]); 
-           $tmpStr = $colorSt->sentence;
-           $start = 0;
-           $index = 0;
-           foreach($lcsPartTmpArray as $lcsSingle)
-           {
-               while ($index < count($colorSt->stStrList)) {
-                  if($lcsSingle == $colorSt->stStrList[$index])
-                  {
-                    $colorSt->colorArray[$index] = intval($plag["articleId"]) + 1;
-                    $index ++;
-                    break;
-                  } 
-                  $index++;
-               }
-           }
-        }
-        for($i = 0;$i < count($colorSt->stStrList);$i++)
-        {
-            $textrun->addText($colorSt->stStrList[$i],  array('size' => 12, 'bgColor'=>$articleColor[$colorSt->colorArray[$i]]));
-        }
-    }
+if ($zip->open("./download/" . $zipFolder, ZIPARCHIVE::CREATE)!==TRUE) {   
+    exit('无法打开文件，或者文件创建失败');
 }   
-$filename = trim($author."_").date("Ymd_Hms");
+$fileIndex = 1;
 
-$targetFile = __DIR__ . "/download/{$filename}.{$extension}";
-$phpWord->save($targetFile, $format);
+try{
+foreach($stuList as $stu)
+{
 
-echo  "download/{$filename}.{$extension}";
+    // $stuInfo = $_POST['stuInfo'];
+    // $sentenceList = $_POST['sentenceList'];
+
+    $stuInfo = $stu['stuInfo'];
+    $sentenceList = $stu['sentenceList'];
+
+    $title = $stuInfo["fileName"];
+    $author = $stuInfo["stuName"];
+
+    $phpWord = new \PhpOffice\PhpWord\PhpWord();
+
+    $fontStyleName = 'rStyle';
+
+    $paragraphStyleName = 'pStyle';
+    $phpWord->addParagraphStyle($paragraphStyleName, array('alignment' => \PhpOffice\PhpWord\SimpleType\Jc::CENTER, 'spaceAfter' => 100));
+
+    $phpWord->addTitleStyle(1, array('bold' => true), array('spaceAfter' => 240));
+
+    // New portrait section
+    $section = $phpWord->addSection();
+
+    // Simple text
+    $section->addTitle($title." ".$author, 1);
+
+    // Two text break
+    $section->addTextBreak();
+
+    // Define styles
+
+    $phpWord->addFontStyle($fontStyleName, array('size' => 12));
+    $textrun = $section->addTextRun();
+
+
+    foreach($sentenceList as $st)
+    {
+        $content = $st["content"];
+        $plagList = $st["plagiarismList"];
+        if($plagList == null || $plagList == "")
+        {
+            $textrun->addText($content, $fontStyleName);
+        }else{
+            $colorSt = new ColorSentence($content);
+            foreach($plagList as $plag)
+            {
+            $lcsPartTmpArray =  CharUtils::mb_str_split($plag["lcsPart"]); 
+            $tmpStr = $colorSt->sentence;
+            $start = 0;
+            $index = 0;
+            foreach($lcsPartTmpArray as $lcsSingle)
+            {
+                while ($index < count($colorSt->stStrList)) {
+                    if($lcsSingle == $colorSt->stStrList[$index])
+                    {
+                        $colorSt->colorArray[$index] = intval($plag["articleId"]) + 1;
+                        $index ++;
+                        break;
+                    } 
+                    $index++;
+                }
+            }
+            }
+            for($i = 0;$i < count($colorSt->stStrList);$i++)
+            {
+                $textrun->addText($colorSt->stStrList[$i],  array('size' => 12, 'bgColor'=>$articleColor[$colorSt->colorArray[$i]]));
+            }
+        }
+    }   
+    $filename = trim($author."_").date("Ymd_Hms") . str_pad(strval($fileIndex),3,"0",STR_PAD_LEFT);
+
+    $fileIndex++;
+
+
+    $targetFile = __DIR__ . "/download/{$tempFolder}/{$filename}.{$extension}";
+    $phpWord->save($targetFile, $format);
+
+    $zip->addFile($targetFile,$filename .".". $extension);
+    // $zip->rename($targetFile,"{$filename}.{$extension}");
+}
+}catch (Exception $e) {   
+    print $e->getMessage();   
+    exit();   
+    }   
+$zip->close();//关闭   
+echo  "download/{$zipFolder}";
 
 ?>
