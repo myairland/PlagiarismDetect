@@ -136,7 +136,7 @@ class PlagiarismDetect extends external_api
             $obj = new Sentence();
             $obj->articleId = $article->articleId;          
             $obj->sentenceId = $sentenceId;
-            $obj->content = $st;
+            $obj->content = CharUtils::remove_spaces($st);
             $obj->start = $start;
             $obj->length= mb_strlen($st);
             $article->sentenceList = $article->sentenceList + array($sentenceId => $obj);

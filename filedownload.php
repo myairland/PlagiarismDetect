@@ -1,8 +1,10 @@
 <?php
 
+require('../../config.php');
 require_once __DIR__ . '/bootstrap.php';
 require_once("char.php");
 require_once("plagiarismModel.php");
+require_once($CFG->libdir . '/excellib.class.php');
 
 use PhpOffice\PhpWord\Settings;
 $articleColor = array("ffffff","ffff00","ff0000","00ff00","0000ff","ff00ff","ff8000","8000ff","c000ff");
@@ -11,13 +13,16 @@ $articleColor = array("ffffff","ffff00","ff0000","00ff00","0000ff","ff00ff","ff8
 Settings::loadConfig();
 
 // Set writers
-$extension = "docx";
-$format = "Word2007";
+$docExtension = "docx";
+$excelExtension = "xlsx";
+$wordFormat = "Word2007";
+$excelFormat = "Excel2007";
 // Turn output escaping on
 Settings::setOutputEscapingEnabled(true);
 
 $array = array(); 
 $stuList = $_POST['stuList'];
+$articleList = $_POST['articleList'];
 
 $tempFolder = date("Ymd_Hms");
 $zipFolder = date("YmdHms");
@@ -43,6 +48,7 @@ foreach($stuList as $stu)
     $title = $stuInfo["fileName"];
     $author = $stuInfo["stuName"];
 
+    // word part
     $phpWord = new \PhpOffice\PhpWord\PhpWord();
 
     $fontStyleName = 'rStyle';
@@ -103,14 +109,87 @@ foreach($stuList as $stu)
     }   
     $filename = trim($author."_").date("Ymd_Hms") . str_pad(strval($fileIndex),3,"0",STR_PAD_LEFT);
 
+    $targetFile = __DIR__ . "/download/{$tempFolder}/{$filename}.{$docExtension}";
+    $phpWord->save($targetFile, $wordFormat);
+
+    $zip->addFile($targetFile,$filename .".". $docExtension);
+
+    // execel part
+    $workbook = new MoodleExcelWorkbook('-',$excelExtension);
+    $worksheet = array();
+    $worksheet = $workbook->add_worksheet('相似列表');
+
+    //标题列
+
+    $worksheet->set_column(0, 0, 5);
+    $worksheet->write(0, 0, '序号');
+    
+    $worksheet->set_column(1, 1, 30);
+    $worksheet->write(0, 1, '学生姓名');
+
+    $refIndex = 0;
+    foreach($articleList as $ref)
+    {
+        $worksheet->set_column(2 + 4 * $refIndex, 2 + 4 * $refIndex, 50);
+        $worksheet->write(0, 2 + 4 * $refIndex, '学生的句子');
+
+        $worksheet->set_column(3 + 4 * $refIndex, 3 + 4 * $refIndex, 50);
+        $worksheet->write(0, 3 + 4 * $refIndex, $ref['articleName'] . '的句子');
+
+        $worksheet->set_column(4 + 4 * $refIndex, 4 + 4 * $refIndex, 50);
+        $worksheet->write(0, 4 + 4 * $refIndex, '相似的句子');
+
+        $worksheet->set_column(5 + 4 * $refIndex, 5 + 4 * $refIndex, 10);
+        $worksheet->write(0, 5 + 4 * $refIndex, '相似度');
+        
+        $refIndex++;
+    }
+
+    $refPos = array_fill(0,count($articleList),1);
+
+    $excelIndex = 1;
+    foreach($sentenceList as $st)
+    {
+        $content = $st["content"];
+        $plagList = $st["plagiarismList"];
+        if($plagList == null || $plagList == "")
+        {
+            continue;
+        }else{
+            foreach($plagList as $plag)
+            {
+                $artilceId = intval($plag["articleId"]);
+                $column = 2 + $artilceId * 4; 
+                $row = $refPos[$artilceId];
+                $cell = $worksheet->worksheet->getCellByColumnAndRow(0,$row + 1);
+                if($cell->getValue() == "")
+                {
+                    $worksheet->write($row,0 ,$excelIndex);
+                    $worksheet->write($row,1 ,$author);
+                    $excelIndex = $excelIndex + 1;
+                }
+                
+                $worksheet->write($row, $column, $content);
+                //文献的句子
+                $worksheet->write($row, $column + 1, $articleList[$plag['articleId']]["sentenceList"][$plag['sentenceId']]["content"]);
+        
+                $worksheet->write($row, $column + 2, $plag["lcsPart"]);
+        
+                $worksheet->write($row, $column + 3, $plag["similarity"]);
+
+                $refPos[$artilceId] = $refPos[$artilceId] + 1;
+            }
+        }
+    }
+
+    $targetFile = __DIR__ . "/download/{$tempFolder}/{$filename}.{$excelExtension}";
+
+    $objWriter = PHPExcel_IOFactory::createWriter($workbook->objPHPExcel,"Excel2007");
+    $objWriter->save($targetFile);
+
+    $zip->addFile($targetFile,$filename .".". $excelExtension);
+
     $fileIndex++;
-
-
-    $targetFile = __DIR__ . "/download/{$tempFolder}/{$filename}.{$extension}";
-    $phpWord->save($targetFile, $format);
-
-    $zip->addFile($targetFile,$filename .".". $extension);
-    // $zip->rename($targetFile,"{$filename}.{$extension}");
 }
 }catch (Exception $e) {   
     print $e->getMessage();   

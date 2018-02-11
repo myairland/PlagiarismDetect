@@ -453,11 +453,22 @@ function filedownloadAll()
     var param = {};
 
     param.stuList = Array();
+    param.articleList = Array();
 
     $(".leftInfo>div[data-show!='']").each(function(index,div){
-        var curStu = $(div).attr("data-show")
+        var curStu = $(div).attr("data-show");
         var data = prepareData(curStu);
         param.stuList.push(data);
+    });
+
+    $(".rightInfo>div[data-show!='']").each(function(index,div){
+        var curRef = $(div).attr("data-show");
+        var article = {};
+        article.articleId = curRef;
+        article.articleName = $(div).find(".title").html();
+        var data = prepareRefData(curRef);
+        article.sentenceList = data;
+        param.articleList.push(article);
     });
     
     $.post( "filedownload.php", param,function( data ) {
@@ -473,6 +484,17 @@ function fileDownload()
     var curStu = $('#curStu').val();
 
     param.stuList = Array();
+    param.articleList = Array();
+
+    $(".rightInfo>div[data-show!='']").each(function(index,div){
+        var curRef = $(div).attr("data-show");
+        var article = {};
+        article.articleId = curRef;
+        article.articleName = $(div).find(".title").html();
+        var data = prepareRefData(curRef);
+        article.sentenceList = data;
+        param.articleList.push(article);
+    });
 
     param.stuList.push(prepareData(curStu));
 
@@ -481,6 +503,19 @@ function fileDownload()
       }).fail(function(message){alert("服务器返回错误");});
 }
 // download data
+function prepareRefData(curRef)
+{
+    var data = Array();
+
+    $(".rightInfo>div[data-show='" + curRef + "'] .article>span").each(function(index,st){
+        var sentenceInfo = new Sentence(curRef,index,$(st).html(),null)
+        data.push(sentenceInfo);
+    });
+    
+    return data;
+}
+
+
 function prepareData(curStu)
 {
     var data = {};
@@ -508,7 +543,10 @@ function prepareData(curStu)
                     var refStPos = plagPart.substring(0,plagPart.lastIndexOf("-"));
                     var refSimilarity = plagPart.substring(plagPart.lastIndexOf("-") + 1);
 
-                    var plagReference = new PlagiarismReference(refStPos,refStIndex,refSimilarity,lcsPart);
+                    var refArticle = refStPos.substring(0,refStPos.indexOf("-"));
+                    var refSetenceId = refStPos.substring(refStPos.indexOf("-")+1);
+
+                    var plagReference = new PlagiarismReference(refArticle,refSetenceId,round(refSimilarity * 100,2) + "%",lcsPart);
                     sentenceInfo.plagiarismList.push(plagReference);
                 }
 

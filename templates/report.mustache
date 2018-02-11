@@ -277,29 +277,29 @@ table tr:hover td {
 </style>
 <div id="test"></div>
 <div class="container">
-        <input type="hidden" id="curStu" value="0" />
-        <input type="hidden" id="curRef" value="0" />
-        <input type="hidden" id="curView" value="0" />
+    <input type="hidden" id="curStu" value="0" />
+    <input type="hidden" id="curRef" value="0" />
+    <input type="hidden" id="curView" value="0" />
     <!-- 头部 工具栏-->
     <div class="mainheader">
-                <span class="downloadAll">
-                    <a onclick="filedownloadAll()">下载全部学生</a>
-                </span>
-                <span class="download">
-                    <a onclick="fileDownload()">下载当前学生</a>
-                </span>
-                <span id="selectArea" class="selectArea">
-                    选中:0
-                </span>
-                <span id="selectAreaLess" class="selectAreaLess">
-                    选中(不计标点):0
-                </span>
-                <span class="changeView">
-                    <a onclick="changeView()">表格视图</a>
-                </span>
-                <span class="changeGlobalView">
-                    <a onclick="changeToGlobalView()">统计视图</a>
-                </span>
+        <span class="downloadAll">
+            <a onclick="filedownloadAll()">下载全部学生</a>
+        </span>
+        <span class="download">
+            <a onclick="fileDownload()">下载当前学生</a>
+        </span>
+        <span id="selectArea" class="selectArea">
+            选中:0
+        </span>
+        <span id="selectAreaLess" class="selectAreaLess">
+            选中(不计标点):0
+        </span>
+        <span class="changeView">
+            <a onclick="changeView()">表格视图</a>
+        </span>
+        <span class="changeGlobalView">
+            <a onclick="changeToGlobalView()">统计视图</a>
+        </span>
     </div>
     <!-- 学生文章区 -->
     <div class="leftInfo">
@@ -339,9 +339,7 @@ table tr:hover td {
                     上一篇
                     </a>
                 </span>
-                <span class="title">
-                {{filename}}
-                </span>
+                <span class="title">{{filename}}</span>
                <span  class="nextRef" data-show="{{articleId}}" >
                     <a onclick="nextRef('{{articleId}}')">
                     下一篇
