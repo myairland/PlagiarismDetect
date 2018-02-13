@@ -18,8 +18,7 @@ function init()
         var selectText = getSelectionText().replace(/\s+/g, "");
         var Chinense = "。●？！：;—（）{}，、“”～〈〉‹›﹛﹜『』〖〗［］《》〔〕{}「」【】";
         var English = ".?•!:;-_()\\[\\]{},'\"/\\~";
-        var reg = new RegExp("[" +  Chinense + "]","g");
-        //var reg = /[" + Chinense + English + "]/g;
+        var reg = new RegExp("[" +  Chinense + English + "]","g");
         var selectTextRemovePunction = selectText.replace(reg, "");
         $("#selectArea").html("选中:" + selectText.length);
         $("#selectAreaLess").html("选中(不计标点):" + selectTextRemovePunction.length);
@@ -30,7 +29,7 @@ function removePunction(text)
 {
     var Chinense = "。●？！：;—（）{}，、“”～〈〉‹›﹛﹜『』〖〗［］《》〔〕{}「」【】";
     var English = ".?•!:;-_()\\[\\]{},'\"/\\~";
-    var reg = new RegExp("[" +  Chinense + "]","g");
+    var reg = new RegExp("[" +  Chinense + English + "]","g");
     return text.replace(/\s+/g, "").replace(reg,"");
 }
 
@@ -108,6 +107,7 @@ function jumpToDetail(curStu)
     $('#curStu').val(curStu.toString());
     $('#curRef').val("0");
     $('#curView').val("0");
+
     //init next page
     initPagination("leftInfo","Stu",curStu.toString());
     initPagination("rightInfo","Ref","0");
@@ -361,6 +361,7 @@ function initPagination(str,sign,cur)
     }
 
     $("." + str + ">div[data-show='" + cur + "']").show();
+    $("." + str + ">div[data-show!='']>.article").show();
 }
 // 表格视图
 ///////////////////////////////////////////////////
@@ -438,13 +439,6 @@ function changeView()
     }
 
 }
-//全局视图
-///////////////////////////////////////////////
-function globalView()
-{
-
-}
-
 
 //下载相关
 ///////////////////////////////////////////////
@@ -452,6 +446,7 @@ function filedownloadAll()
 {
     var param = {};
 
+    $("#bg,.loading").show();
     param.stuList = Array();
     param.articleList = Array();
 
@@ -472,14 +467,17 @@ function filedownloadAll()
     });
     
     $.post( "filedownload.php", param,function( data ) {
+        $("#bg,.loading").hide();
         window.location.href = data;
-      }).fail(function(message){alert("服务器返回错误");});
+      }).fail(function(message){$("#bg,.loading").hide();alert("服务器返回错误");});
 
 
 }
 
 function fileDownload()
 {
+    $("#bg,.loading").show();
+
     var param = {};
     var curStu = $('#curStu').val();
 
@@ -499,8 +497,9 @@ function fileDownload()
     param.stuList.push(prepareData(curStu));
 
     $.post( "filedownload.php", param,function( data ) {
+        $("#bg,.loading").hide();
         window.location.href = data;
-      }).fail(function(message){alert("服务器返回错误");});
+      }).fail(function(message){$("#bg,.loading").hide();alert("服务器返回错误");});
 }
 // download data
 function prepareRefData(curRef)

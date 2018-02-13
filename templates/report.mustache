@@ -274,8 +274,11 @@ table tr:hover td {
     background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#f0f0f0)); 
     background: -moz-linear-gradient(top,  #f2f2f2,  #f0f0f0);	 
 }
+ #bg{ display: none; position: absolute; top: 0%; left: 0%; width: 100%; height: 100%; background-color: black; z-index:1001; -moz-opacity: 0.2; opacity:.2; filter: alpha(opacity=70);}
+ .loading{display: none; position: absolute; top: 50%; left: 50%; z-index:1002;}
 </style>
-<div id="test"></div>
+<div id="bg" class="loading"></div>
+<div class="loading"><img src="img/loading.gif"></div>
 <div class="container">
     <input type="hidden" id="curStu" value="0" />
     <input type="hidden" id="curRef" value="0" />
@@ -295,7 +298,7 @@ table tr:hover td {
             选中(不计标点):0
         </span>
         <span class="changeView">
-            <a onclick="changeView()">表格视图</a>
+            <a onclick="changeView()">切换视图</a>
         </span>
         <span class="changeGlobalView">
             <a onclick="changeToGlobalView()">统计视图</a>
